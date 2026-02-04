@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Features - Music Player</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body data-theme="dark">
+    <!-- Warning Bar (Top of Site) -->
+    <div class="warning-bar" style="display: none;">
+        <div class="warning-bar-content">
+            ⚠️ Some features are currently disabled or experiencing issues
+        </div>
+    </div>
+
+    <!-- Warning Popup Modal -->
+    <div class="warning-popup" style="display: none;">
+        <div class="warning-popup-content">
+            <div class="warning-popup-header">
+                <h2>⚠️ Feature Status</h2>
+                <button class="warning-popup-close" onclick="closeWarningPopup()">×</button>
+            </div>
+            <div class="warning-popup-body">
+                <p><strong>Currently Experiencing Issues:</strong></p>
+                <ul>
+                    <li>Spotify integration - Authentication in progress</li>
+                </ul>
+                <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-secondary);">
+                    The core music player functionality (uploading and playing local files) is working normally.
+                </p>
+            </div>
+            <div class="warning-popup-footer">
+                <button class="warning-popup-btn" onclick="closeWarningPopup()">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎯 Features</h1>
+            <div class="header-controls">
+                <button class="theme-toggle" onclick="toggleTheme()">☀️ Light Mode</button>
+                <div class="dropdown" id="menuDropdown">
+                    <button class="dropdown-btn" onclick="toggleDropdown()">
+                        ☰ Menu
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="index.html" class="dropdown-item">
+                            <span>🎵</span>
+                            <span>Back to Player</span>
+                        </a>
+                        <a href="https://github.com/offline-music-player/offline-music-player.github.io" target="_blank" class="dropdown-item">
+                            <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                            </svg>
+                            <span>GitHub Repository</span>
+                        </a>
+                        <a href="mailto:offline-music-player@proton.me" class="dropdown-item">
+                            <span>✉️</span>
+                            <span>Email</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: var(--bg-secondary); border-radius: 15px; border: 2px solid var(--border);">
+            <p style="color: var(--text-secondary); margin: 0;">
+                <strong>Note:</strong> These are suggestions for expanding the music player. Some features may not be added.
+            </p>
+        </div>
+
+        <!-- Future Features -->
+        <h2 style="font-size: 1.5rem; margin-top: 30px; margin-bottom: 20px; color: var(--accent);">🚀 Future Features</h2>
+        <div id="future-features-container" class="features-container"></div>
+
+        <!-- Feature Items Repository (Hidden) -->
+        <div id="feature-items" style="display: none;">
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">High Priority</div>
+                    <div class="feature-title">Playlist Sorting</div>
+                    <div class="feature-description">Sort by name, duration, date added, or custom order</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">High Priority</div>
+                    <div class="feature-title">Mini Player Mode</div>
+                    <div class="feature-description">Compact floating player that stays on top</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Queue System</div>
+                    <div class="feature-description">Intelligent queue management for flexible playlist control</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Sleep Timer</div>
+                    <div class="feature-description">Auto-stop playback after 15, 30, 45, 60, 90, or 120 minutes</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Medium Priority</div>
+                    <div class="feature-title">Theme Presets</div>
+                    <div class="feature-description">6 beautiful built-in theme presets (Ocean, Forest, Sunset, etc.)</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">High Priority</div>
+                    <div class="feature-title">Custom Color Picker</div>
+                    <div class="feature-description">Create your own custom color scheme with an interactive color picker</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">High Priority</div>
+                    <div class="feature-title">Multi-Language Support</div>
+                    <div class="feature-description">Support for 6+ languages with easy switching</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Album Art Display</div>
+                    <div class="feature-description">Extract and display embedded album artwork</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Favorite/Like Songs</div>
+                    <div class="feature-description">Mark favorites and create a favorites playlist</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Recently Played</div>
+                    <div class="feature-description">Track and display recently played songs</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Playback Statistics</div>
+                    <div class="feature-description">Track play counts, most played songs, total listening time</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Multiple Playlists</div>
+                    <div class="feature-description">Create and manage multiple named playlists</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Smart Playlists</div>
+                    <div class="feature-description">Auto-generated playlists based on metadata or play history</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Custom Themes</div>
+                    <div class="feature-description">Create custom color schemes or theme presets</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Audio Effects</div>
+                    <div class="feature-description">Bass boost, reverb, 3D audio effects</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Gesture Controls</div>
+                    <div class="feature-description">Swipe gestures for mobile devices</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">PWA Support</div>
+                    <div class="feature-description">Make it installable as a Progressive Web App</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Chromecast/AirPlay</div>
+                    <div class="feature-description">Cast to external speakers/devices</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Folder Organization</div>
+                    <div class="feature-description">Organize songs by folders/albums</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Metadata Editor</div>
+                    <div class="feature-description">Edit song titles, artists, and other metadata</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Advanced</div>
+                    <div class="feature-title">Cloud Storage Integration</div>
+                    <div class="feature-description">Connect to Dropbox, Google Drive, OneDrive</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Advanced</div>
+                    <div class="feature-title">Streaming Support</div>
+                    <div class="feature-description">Play from URLs or streaming services APIs</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Advanced</div>
+                    <div class="feature-title">Social Features</div>
+                    <div class="feature-description">Share playlists with friends</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Advanced</div>
+                    <div class="feature-title">Scrobbling</div>
+                    <div class="feature-description">Last.fm integration for play tracking</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Advanced</div>
+                    <div class="feature-title">Music Discovery</div>
+                    <div class="feature-description">Recommend similar songs based on listening habits</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Advanced</div>
+                    <div class="feature-title">Audio Recording</div>
+                    <div class="feature-description">Record audio input and add to playlist</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Advanced</div>
+                    <div class="feature-title">Radio Mode</div>
+                    <div class="feature-description">Endless playback of similar songs</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Advanced</div>
+                    <div class="feature-title">Collaborative Playlists</div>
+                    <div class="feature-description">Multiple users can add to shared playlists</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Improvements</div>
+                    <div class="feature-title">Better Mobile UI</div>
+                    <div class="feature-description">Optimize touch targets and layout for mobile</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Low Priority</div>
+                    <div class="feature-title">Speed Control</div>
+                    <div class="feature-description">Adjust playback speed (0.5x to 2x)</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Improvements</div>
+                    <div class="feature-title">Performance Optimization</div>
+                    <div class="feature-description">Handle very large playlists (1000+ songs)</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Improvements</div>
+                    <div class="feature-title">Better Error Handling</div>
+                    <div class="feature-description">Better handling of corrupted/unsupported files</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Improvements</div>
+                    <div class="feature-title">Accessibility</div>
+                    <div class="feature-description">Screen reader support and ARIA labels</div>
+                </div>
+
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Improvements</div>
+                    <div class="feature-title">Internationalization</div>
+                    <div class="feature-description">Multi-language support</div>
+                </div>
+                <!-- Streaming Support -->
+                <div class="feature-card feature-uncompleted">
+                    <div class="feature-category">Advanced</div>
+                    <div class="feature-title">Streaming Support</div>
+                    <div class="feature-description">Stream audio from YouTube, Soundcloud and Spotify directly</div>
+                </div>
+                <!-- Completed Features -->
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">Next/Previous Track</div>
+                    <div class="feature-description">Navigate through your playlist effortlessly</div>
+                </div>
+
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">Play/Pause Controls</div>
+                    <div class="feature-description">Standard playback controls with keyboard shortcuts</div>
+                </div>
+
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">Volume Control</div>
+                    <div class="feature-description">Adjustable volume slider</div>
+                </div>
+
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">15s Skip Forward/Backward</div>
+                    <div class="feature-description">Quick navigation within tracks</div>
+                </div>
+
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">Smart Shuffle</div>
+                    <div class="feature-description">Intelligent shuffle that plays all songs once before repeating</div>
+                </div>
+
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">Repeat Mode</div>
+                    <div class="feature-description">Loop your favorite song indefinitely</div>
+                </div>
+
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">Track Duration Display</div>
+                    <div class="feature-description">See the length of each song</div>
+                </div>
+
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">Remove Tracks</div>
+                    <div class="feature-description">Easy one-click removal from playlist</div>
+                </div>
+
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">Drag & Drop Upload</div>
+                    <div class="feature-description">Simply drag audio files onto the player</div>
+                </div>
+
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">Multiple File Upload</div>
+                    <div class="feature-description">Add multiple songs at once</div>
+                </div>
+
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">Keyboard Shortcuts</div>
+                    <div class="feature-description">Space to play/pause, arrows for control, R for repeat, S for shuffle</div>
+                </div>
+
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">Progress Bar</div>
+                    <div class="feature-description">Visual playback progress with click-to-seek functionality</div>
+                </div>
+
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">Responsive Design</div>
+                    <div class="feature-description">Works perfectly on desktop, tablet, and mobile devices</div>
+                </div>
+
+                <div class="feature-card feature-completed">
+                    <div class="feature-category">✅ Completed</div>
+                    <div class="feature-title">Dark/Light Theme</div>
+                    <div class="feature-description">Toggle between sleek dark mode and clean light mode</div>
+                </div>
+        </div>
+
+        <!-- Completed Features -->
+        <h2 style="font-size: 1.5rem; margin-top: 50px; margin-bottom: 20px; color: var(--accent);">✅ Completed Features</h2>
+        <div id="completed-features-container" class="features-container"></div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Override script.js functions that we don't need on features page
+        
+        // Priority order for sorting features
+        const priorityOrder = {
+            'Advanced': 1,
+            'High Priority': 2,
+            'Medium Priority': 3,
+            'Low Priority': 4,
+            'Improvements': 5
+        };
+        
+        // Organize features by their class marking (feature-completed or feature-uncompleted)
+        function organizeFeatures() {
+            const featureItems = document.getElementById('feature-items');
+            const futureContainer = document.getElementById('future-features-container');
+            const completedContainer = document.getElementById('completed-features-container');
+
+            // Get all feature cards from the hidden repository
+            const allCards = featureItems.querySelectorAll('.feature-card');
+            
+            // Separate completed and uncompleted features
+            const completedCards = [];
+            const uncompletedCards = [];
+
+            allCards.forEach(card => {
+                const clone = card.cloneNode(true);
+
+                if (clone.classList.contains('feature-completed')) {
+                    completedCards.push(clone);
+                } else if (clone.classList.contains('feature-uncompleted')) {
+                    uncompletedCards.push(clone);
+                }
+            });
+            
+            // Sort uncompleted cards by priority
+            uncompletedCards.sort((a, b) => {
+                const categoryA = a.querySelector('.feature-category').textContent.trim();
+                const categoryB = b.querySelector('.feature-category').textContent.trim();
+                
+                const priorityA = priorityOrder[categoryA] || 999;
+                const priorityB = priorityOrder[categoryB] || 999;
+                
+                return priorityA - priorityB;
+            });
+            
+            // Append sorted uncompleted features
+            uncompletedCards.forEach(card => {
+                futureContainer.appendChild(card);
+            });
+            
+            // Append completed features
+            completedCards.forEach(card => {
+                completedContainer.appendChild(card);
+            });
+        }
+
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', organizeFeatures);
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
