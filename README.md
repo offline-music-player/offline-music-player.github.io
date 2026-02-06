@@ -2,10 +2,32 @@
 
 A sleek, modern web-based music player with a beautiful dark/light theme toggle and powerful playback features. Built with vanilla JavaScript, HTML, and CSS - no dependencies required!
 
+![Github Repo](https://img.shields.io/badge/github-repo-blue?logo=github)
 ![Music Player Demo](https://img.shields.io/badge/Status-Active-success)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
+
+## 🚀 Quick Download
+
+Get the standalone HTML file and start using it immediately:
+
+**Option 1: Download from Latest Release**
+- Go to [Releases](https://github.com/offline-music-player/offline-music-player.github.io/releases/tag/v1.0.0)
+- Download `offline-music-player.html`
+- Open the file in your web browser - that's it!
+
+**Option 2: Download via Terminal**
+```bash
+curl -o offline-music-player.html https://raw.githubusercontent.com/offline-music-player/offline-music-player.github.io/main/offline-music-player.html
+# Then open offline-music-player.html in your browser
+```
+
+**Option 3: Use Directly from CDN**
+```html
+<!-- Add this to your website or access directly -->
+https://cdn.jsdelivr.net/gh/offline-music-player/offline-music-player.github.io@latest/offline-music-player.html
+```
 
 ## ✨ Features
 
