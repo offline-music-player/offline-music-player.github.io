@@ -1,0 +1,32 @@
+{
+  "name": "offline-music-player",
+  "version": "1.0.0",
+  "description": "A standalone offline music player with dark/light mode, shuffle, repeat, and playlist management",
+  "main": "offline-music-player.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "music-player",
+    "offline",
+    "audio",
+    "web-player",
+    "html",
+    "standalone"
+  ],
+  "author": "offline-music-player",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/offline-music-player/offline-music-player.github.io.git"
+  },
+  "homepage": "https://github.com/offline-music-player/offline-music-player.github.io",
+  "bugs": {
+    "url": "https://github.com/offline-music-player/offline-music-player.github.io/issues"
+  },
+  "files": [
+    "offline-music-player.html",
+    "README.md",
+    "LICENSE"
+  ]
+}
