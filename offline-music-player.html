@@ -203,6 +203,22 @@ body {
     transform: translateY(-2px);
 }
 
+.upload-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.clear-btn {
+    background: #d9534f;
+}
+
+.clear-btn:hover {
+    background: #c9302c;
+}
+
 .streaming-area {
     background: var(--bg-primary);
     border-radius: 12px;
@@ -348,10 +364,12 @@ body {
     outline: none;
     cursor: pointer;
     -webkit-appearance: none;
+    appearance: none;
 }
 
 .volume-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
+    appearance: none;
     width: 18px;
     height: 18px;
     background: var(--accent);
@@ -373,6 +391,79 @@ body {
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 5px 15px var(--shadow);
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    width: min(420px, 90vw);
+    box-shadow: 0 20px 60px var(--shadow);
+}
+
+.modal-title {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.modal-text {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.update-log-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+.update-log-label {
+    color: var(--text-secondary);
+}
+
+.update-log-version {
+    font-weight: 600;
+}
+
+.update-log-list {
+    padding-left: 18px;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 .playlist-title {
@@ -490,12 +581,9 @@ body {
     }
     
     .play-pause-btn {
-        width: 55px;
-        height: 55px;
-        font-size: 22px;
-        order: 3;
-        flex-basis: 100%;
-        margin: 10px 0;
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
     }
     
     .volume-container {
@@ -525,13 +613,17 @@ body {
                         ☰ Menu
                     </button>
                     <div class="dropdown-content">
+                        <a href="#" class="dropdown-item" onclick="openUpdateLog(); return false;">
+                            <span>📝</span>
+                            <span>Updates</span>
+                        </a>
                         <a href="https://github.com/offline-music-player/offline-music-player.github.io" target="_blank" class="dropdown-item">
                             <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
                                 <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
                             </svg>
                             <span>GitHub Repository</span>
                         </a>
-                        <a href="mailto:offline-music-player@proton.me" class="dropdown-item">
+                        <a href="mailto:offline-music-player@proton.me" class="dropdown-item" target="_blank" rel="noopener">
                             <span>✉️</span>
                             <span>Send Email</span>
                         </a>
@@ -543,8 +635,11 @@ body {
         <div class="player-container">
             <div class="upload-area" id="uploadArea">
                 <div class="upload-text">Drag & drop MP3 files here or</div>
-                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
-                <input type="file" id="fileInput" class="file-input" accept=".mp3,.wav,.ogg,.m4a" multiple>
+                <div class="upload-actions">
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+                    <button class="upload-btn clear-btn" onclick="openClearConfirm()">Clear Songs</button>
+                    <input type="file" id="fileInput" class="file-input" accept=".mp3,.wav,.ogg,.m4a" multiple>
+                </div>
             </div>
 
             <div class="current-song" id="currentSong">
@@ -593,6 +688,33 @@ body {
         </div>
     </div>
 
+    <div class="modal-overlay" id="clearModalOverlay" role="dialog" aria-modal="true" aria-labelledby="clearModalTitle" aria-describedby="clearModalText">
+        <div class="modal">
+            <div class="modal-title" id="clearModalTitle">Clear all songs?</div>
+            <div class="modal-text" id="clearModalText">This will remove every song from your playlist and saved library. This cannot be undone.</div>
+            <div class="modal-actions">
+                <button class="upload-btn btn-secondary" id="clearModalCancelBtn">Cancel</button>
+                <button class="upload-btn clear-btn" id="clearModalConfirmBtn">Clear Songs</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="updateModalOverlay" role="dialog" aria-modal="true" aria-labelledby="updateModalTitle">
+        <div class="modal">
+            <div class="modal-title" id="updateModalTitle">Update Log</div>
+            <div class="update-log-meta">
+                <span class="update-log-label">Latest update:</span>
+                <span class="update-log-version" id="updateModalVersion">Feb 11, 2026</span>
+            </div>
+            <ul class="update-log-list" id="updateModalList">
+                <li>Current issues: Auto-select song upon upload but it will auto-select when indexeddb loads songs. </li>
+            </ul>
+            <div class="modal-actions">
+                <button class="upload-btn btn-secondary" id="updateModalCloseBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
     <audio id="audioPlayer" preload="metadata"></audio>
     <script>
 // Music player variables
@@ -603,6 +725,17 @@ let isDark = true;
 let isRepeating = false;
 let isShuffling = false;
 let playHistory = [];
+
+// IndexedDB constants
+const DB_NAME = 'offlineMusicPlayerDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'songs';
+let dbAvailable = false;
+let dbPromise = null;
+const UPDATE_LOG = {
+    version: 'Feb 11, 2026',
+    uploadsKey: 'uploads-v1'
+};
 
 // DOM elements
 const audioPlayer = document.getElementById('audioPlayer');
@@ -619,6 +752,12 @@ const volumeSlider = document.getElementById('volumeSlider');
 const playlistContainer = document.getElementById('playlistContainer');
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
+const clearModalOverlay = document.getElementById('clearModalOverlay');
+const clearModalConfirmBtn = document.getElementById('clearModalConfirmBtn');
+const clearModalCancelBtn = document.getElementById('clearModalCancelBtn');
+const updateModalOverlay = document.getElementById('updateModalOverlay');
+const updateModalCloseBtn = document.getElementById('updateModalCloseBtn');
+const updateModalVersion = document.getElementById('updateModalVersion');
 
 // Initialize (only if audio player exists on this page)
 if (audioPlayer) {
@@ -653,6 +792,33 @@ if (audioPlayer) {
         const files = Array.from(e.dataTransfer.files);
         addFilesToPlaylist(files);
     });
+
+    clearModalConfirmBtn.addEventListener('click', confirmClearSongs);
+    clearModalCancelBtn.addEventListener('click', closeClearConfirm);
+    clearModalOverlay.addEventListener('click', (e) => {
+        if (e.target === clearModalOverlay) {
+            closeClearConfirm();
+        }
+    });
+
+    updateModalCloseBtn.addEventListener('click', closeUpdateLog);
+    updateModalOverlay.addEventListener('click', (e) => {
+        if (e.target === updateModalOverlay) {
+            closeUpdateLog();
+        }
+    });
+
+    if (updateModalVersion) {
+        updateModalVersion.textContent = UPDATE_LOG.version;
+    }
+    maybeShowUpdateLogForUploads();
+
+    // Initialize IndexedDB and load saved songs
+    initIndexedDB()
+        .then(loadSongsFromDB)
+        .catch(() => {
+            // IndexedDB unavailable; proceed without persistence
+        });
 }
 
 // Dropdown Menu Functions
@@ -673,38 +839,32 @@ window.addEventListener('click', (e) => {
 function handleFileSelect(e) {
     const files = Array.from(e.target.files);
     addFilesToPlaylist(files);
+    e.target.value = '';
 }
 
-function addFilesToPlaylist(files) {
+async function addFilesToPlaylist(files) {
     const audioFiles = files.filter(file => 
         file.type.startsWith('audio/') || 
         file.name.match(/\.(mp3|wav|ogg|m4a)$/i)
     );
 
-    audioFiles.forEach(file => {
-        const url = URL.createObjectURL(file);
-        const song = {
-            name: file.name.replace(/\.(mp3|wav|ogg|m4a)$/i, ''),
-            url: url,
-            file: file,
-            duration: '0:00'
-        };
+    for (const file of audioFiles) {
+        let songId = null;
+        if (dbAvailable) {
+            try {
+                songId = await saveSongToDB(file);
+            } catch (e) {
+                // Ignore save errors; keep in-memory only
+            }
+        }
 
+        const song = createSongFromFile(file, songId);
         playlist.push(song);
-        
-        // Get duration
-        const tempAudio = new Audio(url);
-        tempAudio.addEventListener('loadedmetadata', () => {
-            song.duration = formatTime(tempAudio.duration);
-            renderPlaylist();
-        });
-    });
+        loadSongDuration(song);
+    }
 
     renderPlaylist();
-    
-    if (currentSongIndex === -1 && playlist.length > 0) {
-        loadSong(0);
-    }
+    ensureFirstSongSelected();
 }
 
 function renderPlaylist() {
@@ -917,6 +1077,10 @@ function removeSong(event, index) {
     
     // Revoke object URL to free memory
     URL.revokeObjectURL(playlist[index].url);
+
+    if (dbAvailable && playlist[index].id != null) {
+        deleteSongFromDB(playlist[index].id);
+    }
     
     playlist.splice(index, 1);
     
@@ -945,6 +1109,69 @@ function removeSong(event, index) {
     renderPlaylist();
 }
 
+function openClearConfirm() {
+    clearModalOverlay.classList.add('active');
+}
+
+function closeClearConfirm() {
+    clearModalOverlay.classList.remove('active');
+}
+
+function openUpdateLog() {
+    updateModalOverlay.classList.add('active');
+    const dropdown = document.getElementById('menuDropdown');
+    if (dropdown) {
+        dropdown.classList.remove('active');
+    }
+}
+
+function closeUpdateLog() {
+    updateModalOverlay.classList.remove('active');
+}
+
+function maybeShowUpdateLogForUploads() {
+    const seenKey = `updateLogSeen:${UPDATE_LOG.uploadsKey}`;
+    if (localStorage.getItem(seenKey) !== UPDATE_LOG.version) {
+        openUpdateLog();
+        localStorage.setItem(seenKey, UPDATE_LOG.version);
+    }
+}
+
+async function confirmClearSongs() {
+    closeClearConfirm();
+    await clearAllSongs();
+}
+
+async function clearAllSongs() {
+    if (isPlaying) {
+        audioPlayer.pause();
+    }
+
+    for (const song of playlist) {
+        URL.revokeObjectURL(song.url);
+    }
+
+    playlist = [];
+    currentSongIndex = -1;
+    isPlaying = false;
+    playHistory = [];
+
+    audioPlayer.src = '';
+    songTitle.textContent = 'No song selected';
+    songInfo.textContent = 'Select a song to start playing';
+    playPauseBtn.textContent = '▶';
+    progressFill.style.width = '0%';
+    currentTime.textContent = '0:00';
+    totalTime.textContent = '0:00';
+
+    renderPlaylist();
+    updateTabTitle();
+
+    if (dbAvailable) {
+        await clearSongsFromDB();
+    }
+}
+
 function toggleTheme() {
     const body = document.body;
     const themeToggle = document.querySelector('.theme-toggle');
@@ -968,6 +1195,132 @@ function formatTime(seconds) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+function ensureFirstSongSelected() {
+    if (currentSongIndex === -1 && playlist.length > 0) {
+        loadSong(0);
+    }
+}
+
+function createSongFromFile(file, id) {
+    const url = URL.createObjectURL(file);
+    return {
+        id: id,
+        name: file.name.replace(/\.(mp3|wav|ogg|m4a)$/i, ''),
+        url: url,
+        file: file,
+        duration: '0:00'
+    };
+}
+
+function loadSongDuration(song) {
+    const tempAudio = new Audio(song.url);
+    tempAudio.addEventListener('loadedmetadata', () => {
+        song.duration = formatTime(tempAudio.duration);
+        renderPlaylist();
+    });
+}
+
+function initIndexedDB() {
+    if (!('indexedDB' in window)) {
+        dbAvailable = false;
+        return Promise.resolve(null);
+    }
+
+    dbAvailable = true;
+    dbPromise = new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                store.createIndex('addedAt', 'addedAt', { unique: false });
+            }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+
+    return dbPromise;
+}
+
+async function saveSongToDB(file) {
+    if (!dbPromise) return null;
+    const db = await dbPromise;
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const record = {
+            name: file.name.replace(/\.(mp3|wav|ogg|m4a)$/i, ''),
+            fileName: file.name,
+            type: file.type,
+            size: file.size,
+            lastModified: file.lastModified,
+            blob: file,
+            addedAt: Date.now()
+        };
+        const req = store.add(record);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+    });
+}
+
+async function deleteSongFromDB(id) {
+    if (!dbPromise) return;
+    const db = await dbPromise;
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).delete(id);
+}
+
+async function clearSongsFromDB() {
+    if (!dbPromise) return;
+    const db = await dbPromise;
+    return new Promise((resolve) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.clear();
+        req.onsuccess = () => resolve();
+        req.onerror = () => resolve();
+    });
+}
+
+async function loadSongsFromDB() {
+    if (!dbPromise) return;
+    const db = await dbPromise;
+    return new Promise((resolve) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.getAll();
+        req.onsuccess = () => {
+            const records = req.result || [];
+            records.sort((a, b) => a.addedAt - b.addedAt);
+            for (const record of records) {
+                let file;
+                try {
+                    file = new File([record.blob], record.fileName, {
+                        type: record.type,
+                        lastModified: record.lastModified
+                    });
+                } catch (e) {
+                    file = record.blob;
+                    try {
+                        file.name = record.fileName;
+                        file.lastModified = record.lastModified;
+                    } catch (err) {
+                        // Ignore if read-only
+                    }
+                }
+                const song = createSongFromFile(file, record.id);
+                playlist.push(song);
+                loadSongDuration(song);
+            }
+            renderPlaylist();
+            ensureFirstSongSelected();
+            resolve();
+        };
+        req.onerror = () => resolve();
+    });
+}
+
 // Enhanced keyboard shortcuts
 document.addEventListener('keydown', (e) => {
     // Don't trigger shortcuts when typing in input fields
@@ -978,6 +1331,12 @@ document.addEventListener('keydown', (e) => {
             e.preventDefault();
             e.stopPropagation();
             togglePlay();
+            break;
+        case 'Escape':
+            if (clearModalOverlay.classList.contains('active')) {
+                e.preventDefault();
+                closeClearConfirm();
+            }
             break;
         case 'ArrowLeft':
             e.preventDefault();
