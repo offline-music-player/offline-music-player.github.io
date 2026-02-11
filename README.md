@@ -47,7 +47,7 @@ curl -o offline-music-player.html https://raw.githubusercontent.com/offline-musi
 - **Remove Tracks** - Easy one-click removal from playlist
 - **Active Track Highlighting** - Always know what's playing
 
-### ⌨️ **Keyboard Shortcuts**
+### ⌨️ **Keyboard Shortcuts (computer only)**
 | Key | Action |
 |-----|--------|
 | `Space` | Play/Pause |
