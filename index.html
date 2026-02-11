@@ -36,6 +36,28 @@
         </div>
     </div>
 
+    <!-- Update Log Modal -->
+    <div class="update-log" style="display: none;">
+        <div class="update-log-content">
+            <div class="update-log-header">
+                <h2 data-update-log-title>Update Log</h2>
+                <button class="update-log-close" onclick="closeUpdateLog()">×</button>
+            </div>
+            <div class="update-log-body">
+                <div class="update-log-meta">
+                    <span class="update-log-label">Latest update:</span>
+                    <span class="update-log-version" data-update-log-version>Feb 11, 2026</span>
+                </div>
+                <ul class="update-log-list" data-update-log-items>
+                    <li>Loading updates...</li>
+                </ul>
+            </div>
+            <div class="update-log-footer">
+                <button class="update-log-btn" onclick="closeUpdateLog()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1 class="title">🎵 Music Player</h1>
@@ -46,16 +68,21 @@
                         ☰ Menu
                     </button>
                     <div class="dropdown-content">
+                        <a href="ideas.html" class="dropdown-item">
+                            <span>💡</span>
+                            <span>Ideas</span>
+                        </a>
                         <a href="features.html" class="dropdown-item">
                             <span>🎯</span>
                             <span>Features</span>
+                        </a>
                         <a href="https://github.com/offline-music-player/offline-music-player.github.io" target="_blank" class="dropdown-item">
                             <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
                                 <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
                             </svg>
                             <span>GitHub Repository</span>
                         </a>
-                        <a href="mailto:offline-music-player@proton.me" class="dropdown-item">
+                        <a href="mailto:offline-music-player@proton.me" class="dropdown-item" target="_blank" rel="noopener">
                             <span>✉️</span>
                             <span>Send Email</span>
                         </a>
@@ -64,129 +91,65 @@
             </div>
         </div>
 
-        <div class="player-container">
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-text">Drag & drop MP3 files here or</div>
-                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
-                <input type="file" id="fileInput" class="file-input" accept=".mp3,.wav,.ogg,.m4a" multiple>
-            </div>
-
-            <div class="current-song" id="currentSong">
-                <div class="song-title" id="songTitle">No song selected</div>
-                <div class="song-info" id="songInfo">Select a song to start playing</div>
-            </div>
-
-            <div class="controls">
-                <button class="control-btn" onclick="previousSong()">⏮</button>
-                <button class="control-btn" onclick="rewind15()">⏪</button>
-                <button class="control-btn play-pause-btn" id="playPauseBtn" onclick="togglePlay()">▶</button>
-                <button class="control-btn" onclick="forward15()">⏩</button>
-                <button class="control-btn" onclick="nextSong()">⏭</button>
-                <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()" title="Repeat current song">
-                    🔁
-                    <div class="repeat-indicator"></div>
-                </button>
-                <button class="control-btn" id="shuffleBtn" onclick="toggleShuffle()" title="Shuffle playlist">
-                    🔀
-                    <div class="repeat-indicator"></div>
-                </button>
-            </div>
-
-            <div class="progress-container">
-                <div class="progress-bar" id="progressBar" onclick="seekTo(event)">
-                    <div class="progress-fill" id="progressFill"></div>
+        <div id="pipContent">
+            <div class="player-container">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-text">Drag & drop MP3 files here or</div>
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+                    <input type="file" id="fileInput" class="file-input" accept=".mp3,.wav,.ogg,.m4a" multiple>
                 </div>
-                <div class="time-display">
-                    <span id="currentTime">0:00</span>
-                    <span id="totalTime">0:00</span>
+
+                <div class="current-song" id="currentSong">
+                    <div class="song-title" id="songTitle">No song selected</div>
+                    <div class="song-info" id="songInfo">Select a song to start playing</div>
                 </div>
-            </div>
 
-            <div class="volume-container">
-                <span>🔈</span>
-                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50">
-                <span>🔊</span>
-            </div>
-        </div>
+                <div class="controls">
+                    <button class="control-btn" onclick="previousSong()">⏮</button>
+                    <button class="control-btn" onclick="rewind15()">⏪</button>
+                    <button class="control-btn play-pause-btn" id="playPauseBtn" onclick="togglePlay()">▶</button>
+                    <button class="control-btn" onclick="forward15()">⏩</button>
+                    <button class="control-btn" onclick="nextSong()">⏭</button>
+                    <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()" title="Repeat current song">
+                        🔁
+                        <div class="repeat-indicator"></div>
+                    </button>
+                    <button class="control-btn" id="shuffleBtn" onclick="toggleShuffle()" title="Shuffle playlist">
+                        🔀
+                        <div class="repeat-indicator"></div>
+                    </button>
+                </div>
 
-        <div class="playlist">
-            <div class="playlist-title">Playlist</div>
-            <div id="playlistContainer">
-                <div class="empty-playlist">Your playlist is empty. Add some music to get started!</div>
-            </div>
-        </div>
-
-        <!-- Download Songs Locally Section -->
-        <div class="download-section">
-            <h2>🎵 Download Songs Locally</h2>
-            <p class="download-section-subtitle">Find and download any song from YouTube, Spotify, SoundCloud, and more</p>
-
-            <!-- Download Sites -->
-            <div class="download-sites-container">
-                <div class="download-site-card">
-                    <div class="site-name">MP3 Juice</div>
-                    <div class="site-link">
-                        <a href="https://v1.mp3juice.as/" target="_blank">https://v1.mp3juice.as/</a>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar" onclick="seekTo(event)">
+                        <div class="progress-fill" id="progressFill"></div>
                     </div>
-                    <div class="site-supports">
-                        <span class="support-badge">YouTube</span>
-                        <span class="support-badge">SoundCloud</span>
-                        <span class="support-badge">Spotify Links</span>
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="totalTime">0:00</span>
                     </div>
-                    <div class="site-note">⚠️ Note: Laggy interface, takes awhile to process, has ads</div>
+                </div>
+
+                <div class="volume-container">
+                    <span>🔈</span>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50">
+                    <span>🔊</span>
                 </div>
             </div>
 
-            <!-- Instructions -->
-            <div class="instructions-container">
-                <h3>📋 How to Download Songs</h3>
-                
-                <div class="instruction-steps">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <div class="step-title">MP3 Juice</div>
-                            <p>Go to the MP3 Juice website (https://v1.mp3juice.as/)</p>
-                        </div>
-                    </div>
-
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <div class="step-title">Search for your Song</div>
-                            <p>Paste your song name, YouTube link, or SoundCloud link into the search bar on MP3 Juice</p>
-                        </div>
-                    </div>
-
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <div class="step-content">
-                            <div class="step-title">Wait for Results</div>
-                            <p>Wait for results to load (can take 10-60 seconds)</p>
-                        </div>
-                    </div>
-
-                    <div class="step">
-                        <div class="step-number">4</div>
-                        <div class="step-content">
-                            <div class="step-title">Select and Download</div>
-                            <p>Make sure you select the correct format (mp3)</p>
-                        </div>
-                    </div>
-
-                    <div class="step">
-                        <div class="step-number">5</div>
-                        <div class="step-content">
-                            <div class="step-title">Import to Player</div>
-                            <p>Use the Browse Files button above to add the downloaded MP3 to your offline music player OR drag and drop the file into the upload area</p>
-                        </div>
-                    </div>
+            <div class="playlist">
+                <div class="playlist-title">Playlist</div>
+                <div id="playlistContainer">
+                    <div class="empty-playlist">Your playlist is empty. Add some music to get started!</div>
                 </div>
             </div>
         </div>
+        <div id="pipAnchor"></div>
+
     </div>
 
     <audio id="audioPlayer" preload="metadata"></audio>
+    <div class="site-version" data-site-version></div>
     <script src="script.js"></script>
 </body>
 </html>

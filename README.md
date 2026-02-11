@@ -23,12 +23,6 @@ curl -o offline-music-player.html https://raw.githubusercontent.com/offline-musi
 # Then open offline-music-player.html in your browser
 ```
 
-**Option 3: Use Directly from CDN**
-```html
-<!-- Add this to your website or access directly -->
-https://cdn.jsdelivr.net/gh/offline-music-player/offline-music-player.github.io@latest/offline-music-player.html
-```
-
 ## ✨ Features
 
 ### 🎨 **Beautiful UI/UX**
@@ -100,6 +94,7 @@ music-player/
 │
 ├── music-player.html          # Main application file (HTML + CSS + JS)
 └── README.md                  # This file
+└── offline-music-player.html  # Offline version of the main application file
 ```
 
 ## 🌟 Browser Support

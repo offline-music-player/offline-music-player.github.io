@@ -10,17 +10,30 @@ let playHistory = [];
 // ============================================
 // WARNING BAR & POPUP CONFIGURATION
 // ============================================
-// Change these to control visibility across ALL pages:
 // bar: 'active' (shows) or 'inactive' (hides)
 // popup: 'active' (shows) or 'inactive' (hides)
 const WARNING_CONFIG = {
     bar: 'inactive',
     popup: 'inactive'
 };
+
+// ============================================
+// UPDATE LOG CONFIGURATION
+// ============================================
+const UPDATE_LOG_CONFIG = {
+    enabled: true,
+    version: 'placeholder',
+    displayDate: 'Coming soon',
+    title: 'Update Log',
+    items: [
+        'Planned: streaming support for YouTube and Spotify (only for now).'
+    ]
+};
+
+const SITE_VERSION = 'v1.0.0';
 // ============================================
 // TEMPLATE FOR NEW HTML FILES
 // ============================================
-// Copy and paste this into the <body> of any NEW HTML files you create:
 /*
     <!-- Warning Bar (Top of Site) -->
     <div class="warning-bar" style="display: none;">
@@ -54,8 +67,6 @@ const WARNING_CONFIG = {
 
 Then add at the end of your HTML file (before </body>):
     <script src="script.js"></script>
-
-That's it! The WARNING_CONFIG will automatically control it!
 */
 // Streaming Support Configuration
 const STREAMING_CONFIG = {
@@ -82,6 +93,12 @@ const volumeSlider = document.getElementById('volumeSlider');
 const playlistContainer = document.getElementById('playlistContainer');
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
+const pipContent = document.getElementById('pipContent');
+const pipAnchor = document.getElementById('pipAnchor');
+
+const PIP_DIMENSIONS = { width: 300, height: 350 };
+let pipWindow = null;
+let pipOpening = false;
 
 // Initialize (only if audio player exists on this page)
 if (audioPlayer) {
@@ -116,6 +133,8 @@ if (audioPlayer) {
         const files = Array.from(e.dataTransfer.files);
         addFilesToPlaylist(files);
     });
+
+    setupPiPBehavior();
 }
 
 // Dropdown Menu Functions
@@ -127,6 +146,7 @@ function toggleDropdown() {
 // Close dropdown when clicking outside
 window.addEventListener('click', (e) => {
     const dropdown = document.getElementById('menuDropdown');
+    if (!dropdown) return;
     if (!dropdown.contains(e.target)) {
         dropdown.classList.remove('active');
     }
@@ -483,8 +503,183 @@ document.addEventListener('keyup', (e) => {
 updateTabTitle();
 
 // ============================================
+// PICTURE-IN-PICTURE (MINI PLAYER)
+// ============================================
+
+function setupPiPBehavior() {
+    if (!pipContent || !pipAnchor) return;
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            openPiPWindow();
+        } else {
+            closePiPWindow();
+        }
+    });
+
+    window.addEventListener('pagehide', () => {
+        closePiPWindow();
+    });
+
+    const themeObserver = new MutationObserver(syncPiPTheme);
+    themeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
+}
+
+async function openPiPWindow() {
+    if (pipWindow || pipOpening || !pipContent || !pipAnchor) return;
+    pipOpening = true;
+
+    try {
+        if (!('documentPictureInPicture' in window) || !documentPictureInPicture.requestWindow) {
+            console.warn('Document PiP not supported in this browser.');
+            return;
+        }
+
+        const pip = await documentPictureInPicture.requestWindow({
+            width: PIP_DIMENSIONS.width,
+            height: PIP_DIMENSIONS.height
+        });
+        setupPiPWindow(pip);
+    } catch (error) {
+        console.warn('PiP unavailable:', error);
+    } finally {
+        pipOpening = false;
+    }
+}
+
+function setupPiPWindow(pip) {
+    pipWindow = pip;
+
+    pipWindow.previousSong = previousSong;
+    pipWindow.rewind15 = rewind15;
+    pipWindow.togglePlay = togglePlay;
+    pipWindow.forward15 = forward15;
+    pipWindow.nextSong = nextSong;
+    pipWindow.toggleRepeat = toggleRepeat;
+    pipWindow.toggleShuffle = toggleShuffle;
+    pipWindow.seekTo = seekTo;
+    pipWindow.loadSong = loadSong;
+    pipWindow.removeSong = removeSong;
+
+    const baseTag = pipWindow.document.createElement('base');
+    baseTag.href = document.baseURI;
+    pipWindow.document.head.appendChild(baseTag);
+
+    document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+        pipWindow.document.head.appendChild(link.cloneNode(true));
+    });
+
+    const pipStyle = pipWindow.document.createElement('style');
+    pipStyle.textContent = 'body{margin:0;overflow:auto;}';
+    pipWindow.document.head.appendChild(pipStyle);
+
+    pipWindow.document.title = 'Music Player';
+    pipWindow.document.body.classList.add('pip-mode');
+    syncPiPTheme();
+    pipWindow.document.body.appendChild(pipContent);
+
+    pipWindow.addEventListener('pagehide', restorePiPContent);
+    pipWindow.addEventListener('beforeunload', restorePiPContent);
+}
+
+function forcePiPSize() {
+    if (!pipWindow || !pipWindow.resizeTo) return;
+    const resize = () => {
+        try {
+            pipWindow.resizeTo(PIP_DIMENSIONS.width, PIP_DIMENSIONS.height);
+        } catch (error) {
+            console.warn('PiP resize failed:', error);
+        }
+    };
+    resize();
+    setTimeout(resize, 50);
+    setTimeout(resize, 200);
+}
+
+function syncPiPTheme() {
+    if (!pipWindow || !pipWindow.document || !document.body) return;
+    const currentTheme = document.body.getAttribute('data-theme');
+    if (currentTheme) {
+        pipWindow.document.body.setAttribute('data-theme', currentTheme);
+    } else {
+        pipWindow.document.body.removeAttribute('data-theme');
+    }
+}
+
+function restorePiPContent() {
+    if (!pipContent || !pipAnchor || pipContent.ownerDocument === document) return;
+    pipAnchor.parentElement.insertBefore(pipContent, pipAnchor);
+    pipWindow = null;
+}
+
+function closePiPWindow() {
+    if (!pipWindow) return;
+    try {
+        pipWindow.close();
+    } catch (error) {
+        console.warn('PiP close failed:', error);
+    }
+    restorePiPContent();
+}
+
+// ============================================
 // INITIALIZE WARNING BAR & POPUP
 // ============================================
+
+function getCookieValue(name) {
+    const cookies = document.cookie ? document.cookie.split('; ') : [];
+    for (const cookie of cookies) {
+        const [cookieName, ...rest] = cookie.split('=');
+        if (cookieName === name) {
+            return decodeURIComponent(rest.join('='));
+        }
+    }
+    return '';
+}
+
+function setCookieValue(name, value, days) {
+    const maxAge = days * 24 * 60 * 60;
+    document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; samesite=lax`;
+}
+
+/**
+ * Initialize update log modal visibility based on cookie and configuration
+ */
+function getUpdateLogSignature() {
+    const payload = [
+        UPDATE_LOG_CONFIG.title,
+        UPDATE_LOG_CONFIG.displayDate,
+        ...UPDATE_LOG_CONFIG.items
+    ].join('|');
+    return payload;
+}
+
+function initializeUpdateLog() {
+    const updateLog = document.querySelector('.update-log');
+    if (!updateLog) return;
+
+    const signature = getUpdateLogSignature();
+    const shouldShow = UPDATE_LOG_CONFIG.enabled &&
+        getCookieValue('update_log_seen') !== signature;
+
+    const title = updateLog.querySelector('[data-update-log-title]');
+    const version = updateLog.querySelector('[data-update-log-version]');
+    const list = updateLog.querySelector('[data-update-log-items]');
+
+    if (title) title.textContent = UPDATE_LOG_CONFIG.title;
+    if (version) version.textContent = UPDATE_LOG_CONFIG.displayDate;
+    if (list) {
+        list.innerHTML = UPDATE_LOG_CONFIG.items.map(item => `<li>${item}</li>`).join('');
+    }
+
+    updateLog.style.display = shouldShow ? 'flex' : 'none';
+}
+
+function initializeSiteVersion() {
+    const versionBadge = document.querySelector('[data-site-version]');
+    if (!versionBadge) return;
+    versionBadge.textContent = SITE_VERSION;
+}
 
 /**
  * Initialize warning bar and popup visibility based on configuration
@@ -495,7 +690,9 @@ function initializeWarningElements() {
     
     // Set bar visibility
     if (warningBar) {
-        warningBar.style.display = WARNING_CONFIG.bar === 'active' ? 'block' : 'none';
+        const barActive = WARNING_CONFIG.bar === 'active';
+        warningBar.style.display = barActive ? 'block' : 'none';
+        document.body.classList.toggle('warning-bar-active', barActive);
     }
     
     // Set popup visibility
@@ -505,7 +702,11 @@ function initializeWarningElements() {
 }
 
 // Run on page load
-document.addEventListener('DOMContentLoaded', initializeWarningElements);
+document.addEventListener('DOMContentLoaded', () => {
+    initializeWarningElements();
+    initializeUpdateLog();
+    initializeSiteVersion();
+});
 
 // ============================================
 // WARNING POPUP & BAR FUNCTIONS
@@ -518,6 +719,7 @@ function closeWarningBar() {
     const warningBar = document.querySelector('.warning-bar');
     if (warningBar) {
         warningBar.style.display = 'none';
+        document.body.classList.remove('warning-bar-active');
     }
 }
 
@@ -528,6 +730,7 @@ function showWarningBar() {
     const warningBar = document.querySelector('.warning-bar');
     if (warningBar) {
         warningBar.style.display = 'block';
+        document.body.classList.add('warning-bar-active');
     }
 }
 
@@ -552,6 +755,16 @@ function closeWarningPopup() {
 }
 
 /**
+ * Close the update log popup and remember it for this version
+ */
+function closeUpdateLog() {
+    const updateLog = document.querySelector('.update-log');
+    if (!updateLog) return;
+    updateLog.style.display = 'none';
+    setCookieValue('update_log_seen', getUpdateLogSignature(), 365);
+}
+
+/**
  * Close popup when clicking outside of it
  */
 document.addEventListener('click', (e) => {
@@ -560,6 +773,16 @@ document.addEventListener('click', (e) => {
     
     if (popup && e.target === popup) {
         closeWarningPopup();
+    }
+});
+
+/**
+ * Close update log when clicking outside of it
+ */
+document.addEventListener('click', (e) => {
+    const updateLog = document.querySelector('.update-log');
+    if (updateLog && e.target === updateLog) {
+        closeUpdateLog();
     }
 });
 
