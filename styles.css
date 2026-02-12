@@ -453,6 +453,7 @@ body.warning-bar-active {
     outline: none;
     cursor: pointer;
     -webkit-appearance: none;
+    appearance: none;
 }
 
 .volume-slider::-webkit-slider-thumb {

@@ -23,10 +23,10 @@ const WARNING_CONFIG = {
 const UPDATE_LOG_CONFIG = {
     enabled: true,
     version: 'placeholder',
-    displayDate: 'Coming soon',
-    title: 'Update Log',
+    displayDate: 'Solved',
+    title: 'Errors & Issues',
     items: [
-        'Planned: streaming support for YouTube and Spotify (only for now).'
+        'Root styling. Root styling was experiencing issues that caused visual inconsistencies across different browsers and devices. The issue was identified and resolved, restoring the intended appearance and functionality of the music player. We apologize for any inconvenience this may have caused and appreciate your patience while we worked to fix it. ',
     ]
 };
 
