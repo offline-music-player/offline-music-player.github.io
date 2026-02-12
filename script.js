@@ -30,7 +30,7 @@ const UPDATE_LOG_CONFIG = {
     ]
 };
 
-const SITE_VERSION = 'v1.0.0';
+const SITE_VERSION = 'v1.1.0';
 // ============================================
 // TEMPLATE FOR NEW HTML FILES
 // ============================================
