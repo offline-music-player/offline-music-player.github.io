@@ -30,7 +30,7 @@ const UPDATE_LOG_CONFIG = {
     ]
 };
 
-const SITE_VERSION = 'v1.1.1';
+const SITE_VERSION = 'v1.1.2';
 // ============================================
 // TEMPLATE FOR NEW HTML FILES
 // ============================================
@@ -795,6 +795,8 @@ function closeWarningPopup() {
 
 function openClearConfirm() {
     if (clearModalOverlay) {
+        clearModalOverlay.hidden = false;
+        clearModalOverlay.setAttribute('aria-hidden', 'false');
         clearModalOverlay.classList.add('active');
     }
 }
@@ -802,6 +804,8 @@ function openClearConfirm() {
 function closeClearConfirm() {
     if (clearModalOverlay) {
         clearModalOverlay.classList.remove('active');
+        clearModalOverlay.setAttribute('aria-hidden', 'true');
+        clearModalOverlay.hidden = true;
     }
 }
 

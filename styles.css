@@ -308,6 +308,22 @@ body.warning-bar-active {
     transform: translateY(-2px);
 }
 
+.upload-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.clear-btn {
+    background: #d9534f;
+}
+
+.clear-btn:hover {
+    background: #c9302c;
+}
+
 .streaming-area {
     background: var(--bg-primary);
     border-radius: 12px;
@@ -479,6 +495,57 @@ body.warning-bar-active {
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 5px 15px var(--shadow);
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    width: min(420px, 90vw);
+    box-shadow: 0 20px 60px var(--shadow);
+}
+
+.modal-title {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.modal-text {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 .playlist-title {
