@@ -14,27 +14,6 @@
         </div>
     </div>
 
-    <!-- Warning Popup Modal -->
-    <div class="warning-popup" style="display: none;">
-        <div class="warning-popup-content">
-            <div class="warning-popup-header">
-                <h2>⚠️ Feature Status</h2>
-                <button class="warning-popup-close" onclick="closeWarningPopup()">×</button>
-            </div>
-            <div class="warning-popup-body">
-                <p><strong>Currently Experiencing Issues:</strong></p>
-                <ul>
-                    <li></li>
-                </ul>
-                <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-secondary);">
-                </p>
-            </div>
-            <div class="warning-popup-footer">
-                <button class="warning-popup-btn" onclick="closeWarningPopup()">Got it</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Update Log Modal -->
     <div class="update-log" style="display: none;">
         <div class="update-log-content">
@@ -45,10 +24,10 @@
             <div class="update-log-body">
                 <div class="update-log-meta">
                     <span class="update-log-label">Latest update:</span>
-                    <span class="update-log-version" data-update-log-version>Feb 11, 2026</span>
+                    <span class="update-log-version" data-update-log-version>Feb 20, 2026</span>
                 </div>
                 <ul class="update-log-list" data-update-log-items>
-                    <li>Loading updates...</li>
+                    <li>Updates coming soon: Search for a song and play it directly from your playlist. </li>
                 </ul>
             </div>
             <div class="update-log-footer">
@@ -94,8 +73,11 @@
             <div class="player-container">
                 <div class="upload-area" id="uploadArea">
                     <div class="upload-text">Drag & drop MP3 files here or</div>
-                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
-                    <input type="file" id="fileInput" class="file-input" accept=".mp3,.wav,.ogg,.m4a" multiple>
+                    <div class="upload-actions">
+                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+                        <button class="upload-btn clear-btn" onclick="openClearConfirm()">Clear Songs</button>
+                        <input type="file" id="fileInput" class="file-input" accept=".mp3,.wav,.ogg,.m4a" multiple>
+                    </div>
                 </div>
 
                 <div class="current-song" id="currentSong">
@@ -145,6 +127,17 @@
         </div>
         <div id="pipAnchor"></div>
 
+    </div>
+
+    <div class="modal-overlay" id="clearModalOverlay" role="dialog" aria-modal="true" aria-labelledby="clearModalTitle" aria-describedby="clearModalText">
+        <div class="modal">
+            <div class="modal-title" id="clearModalTitle">Clear all songs?</div>
+            <div class="modal-text" id="clearModalText">This will remove every song from your playlist. This cannot be undone.</div>
+            <div class="modal-actions">
+                <button class="upload-btn btn-secondary" id="clearModalCancelBtn">Cancel</button>
+                <button class="upload-btn clear-btn" id="clearModalConfirmBtn">Clear Songs</button>
+            </div>
+        </div>
     </div>
 
     <audio id="audioPlayer" preload="metadata"></audio>

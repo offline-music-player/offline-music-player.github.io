@@ -14,7 +14,7 @@ let playHistory = [];
 // popup: 'active' (shows) or 'inactive' (hides)
 const WARNING_CONFIG = {
     bar: 'inactive',
-    popup: 'inactive'
+    popup: 'active'
 };
 
 // ============================================
@@ -22,15 +22,15 @@ const WARNING_CONFIG = {
 // ============================================
 const UPDATE_LOG_CONFIG = {
     enabled: true,
-    version: 'placeholder',
-    displayDate: 'Solved',
-    title: 'Errors & Issues',
+    version: 'Feb 11, 2026',
+    displayDate: 'Feb 11, 2026',
+    title: 'Updates in Progress',
     items: [
-        'Root styling. Root styling was experiencing issues that caused visual inconsistencies across different browsers and devices. The issue was identified and resolved, restoring the intended appearance and functionality of the music player. We apologize for any inconvenience this may have caused and appreciate your patience while we worked to fix it. ',
+        'Updates coming soon: Search for a song and play it directly from your playlist. '
     ]
 };
 
-const SITE_VERSION = 'v1.1.0';
+const SITE_VERSION = 'v1.1.1';
 // ============================================
 // TEMPLATE FOR NEW HTML FILES
 // ============================================
@@ -95,6 +95,9 @@ const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
 const pipContent = document.getElementById('pipContent');
 const pipAnchor = document.getElementById('pipAnchor');
+const clearModalOverlay = document.getElementById('clearModalOverlay');
+const clearModalConfirmBtn = document.getElementById('clearModalConfirmBtn');
+const clearModalCancelBtn = document.getElementById('clearModalCancelBtn');
 
 const PIP_DIMENSIONS = { width: 300, height: 350 };
 let pipWindow = null;
@@ -645,31 +648,49 @@ function setCookieValue(name, value, days) {
 /**
  * Initialize update log modal visibility based on cookie and configuration
  */
-function getUpdateLogSignature() {
-    const payload = [
-        UPDATE_LOG_CONFIG.title,
-        UPDATE_LOG_CONFIG.displayDate,
-        ...UPDATE_LOG_CONFIG.items
-    ].join('|');
-    return payload;
+function getUpdateLogSignature(payload) {
+    return payload.join('|');
 }
 
 function initializeUpdateLog() {
     const updateLog = document.querySelector('.update-log');
     if (!updateLog) return;
 
-    const signature = getUpdateLogSignature();
-    const shouldShow = UPDATE_LOG_CONFIG.enabled &&
-        getCookieValue('update_log_seen') !== signature;
-
     const title = updateLog.querySelector('[data-update-log-title]');
     const version = updateLog.querySelector('[data-update-log-version]');
     const list = updateLog.querySelector('[data-update-log-items]');
 
-    if (title) title.textContent = UPDATE_LOG_CONFIG.title;
-    if (version) version.textContent = UPDATE_LOG_CONFIG.displayDate;
+    const fallbackTitle = title ? title.textContent.trim() : '';
+    const fallbackVersion = version ? version.textContent.trim() : '';
+    const fallbackItems = list
+        ? Array.from(list.querySelectorAll('li')).map(item => item.textContent.trim()).filter(Boolean)
+        : [];
+
+    const useConfig = UPDATE_LOG_CONFIG && UPDATE_LOG_CONFIG.enabled;
+    const hasFallbackTitle = Boolean(fallbackTitle);
+    const hasFallbackVersion = Boolean(fallbackVersion);
+    const hasFallbackItems = fallbackItems.length > 0;
+
+    // Prefer HTML content when it exists so manual edits show on the site.
+    const appliedTitle = hasFallbackTitle ? fallbackTitle : (useConfig ? UPDATE_LOG_CONFIG.title : '');
+    const appliedVersion = hasFallbackVersion ? fallbackVersion : (useConfig ? UPDATE_LOG_CONFIG.displayDate : '');
+    const appliedItems = hasFallbackItems
+        ? fallbackItems
+        : (useConfig && Array.isArray(UPDATE_LOG_CONFIG.items) ? UPDATE_LOG_CONFIG.items : []);
+
+    const signature = getUpdateLogSignature([
+        appliedTitle,
+        appliedVersion,
+        ...appliedItems
+    ]);
+
+    const shouldShow = UPDATE_LOG_CONFIG && UPDATE_LOG_CONFIG.enabled &&
+        getCookieValue('update_log_seen') !== signature;
+
+    if (title && appliedTitle) title.textContent = appliedTitle;
+    if (version && appliedVersion) version.textContent = appliedVersion;
     if (list) {
-        list.innerHTML = UPDATE_LOG_CONFIG.items.map(item => `<li>${item}</li>`).join('');
+        list.innerHTML = appliedItems.map(item => `<li>${item}</li>`).join('');
     }
 
     updateLog.style.display = shouldShow ? 'flex' : 'none';
@@ -706,6 +727,20 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeWarningElements();
     initializeUpdateLog();
     initializeSiteVersion();
+
+    if (clearModalConfirmBtn) {
+        clearModalConfirmBtn.addEventListener('click', confirmClearSongs);
+    }
+    if (clearModalCancelBtn) {
+        clearModalCancelBtn.addEventListener('click', closeClearConfirm);
+    }
+    if (clearModalOverlay) {
+        clearModalOverlay.addEventListener('click', (e) => {
+            if (e.target === clearModalOverlay) {
+                closeClearConfirm();
+            }
+        });
+    }
 });
 
 // ============================================
@@ -752,6 +787,57 @@ function closeWarningPopup() {
     if (popup) {
         popup.style.display = 'none';
     }
+}
+
+// ============================================
+// CLEAR SONGS MODAL
+// ============================================
+
+function openClearConfirm() {
+    if (clearModalOverlay) {
+        clearModalOverlay.classList.add('active');
+    }
+}
+
+function closeClearConfirm() {
+    if (clearModalOverlay) {
+        clearModalOverlay.classList.remove('active');
+    }
+}
+
+function confirmClearSongs() {
+    closeClearConfirm();
+    clearAllSongs();
+}
+
+function clearAllSongs() {
+    if (playlist.length === 0) {
+        renderPlaylist();
+        return;
+    }
+
+    playlist.forEach(song => {
+        if (song.url) {
+            URL.revokeObjectURL(song.url);
+        }
+    });
+
+    playlist = [];
+    currentSongIndex = -1;
+    isPlaying = false;
+    playHistory = [];
+
+    audioPlayer.pause();
+    audioPlayer.src = '';
+    playPauseBtn.textContent = '▶';
+    songTitle.textContent = 'No song selected';
+    songInfo.textContent = 'Select a song to start playing';
+    progressFill.style.width = '0%';
+    currentTime.textContent = '0:00';
+    totalTime.textContent = '0:00';
+
+    renderPlaylist();
+    updateTabTitle();
 }
 
 /**
