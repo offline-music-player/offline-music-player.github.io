@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-mode="dark" data-theme="classic">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎯 Features - Music Player</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body data-theme="dark">
+<body>
     <!-- Warning Bar (Top of Site) -->
     <div class="warning-bar" style="display: none;">
         <div class="warning-bar-content">
@@ -40,6 +40,13 @@
         <div class="header">
             <h1 class="title">🎯 Features</h1>
             <div class="header-controls">
+                <select class="theme-select" id="themeSelect" aria-label="Theme">
+                    <option value="classic">Classic</option>
+                    <option value="synthwave">Retro Synthwave</option>
+                    <option value="glass">Glassmorphism Frost</option>
+                    <option value="forest">Forest</option>
+                    <option value="cyberpunk">Cyberpunk</option>
+                </select>
                 <button class="theme-toggle" onclick="toggleTheme()">☀️ Light Mode</button>
                 <div class="dropdown" id="menuDropdown">
                     <button class="dropdown-btn" onclick="toggleDropdown()">
@@ -377,6 +384,7 @@
         <div id="completed-features-container" class="features-container"></div>
     </div>
 
+    <script src="themes.js"></script>
     <script src="script.js"></script>
     <script>
         // Override script.js functions that we don't need on features page
