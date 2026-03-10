@@ -1016,10 +1016,10 @@ body.warning-bar-active {
 
 .changelog-entry {
     background: var(--bg-secondary);
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
     border-radius: 16px;
     padding: 20px;
-    box-shadow: 0 10px 30px var(--shadow);
+    box-shadow: 0 12px 34px var(--shadow);
 }
 
 .changelog-meta {
