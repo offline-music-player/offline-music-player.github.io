@@ -6,6 +6,14 @@ let isDark = true;
 let isRepeating = false;
 let isShuffling = false;
 let playHistory = [];
+let audioContext = null;
+let analyser = null;
+let analyserData = null;
+let visualizerRaf = null;
+let visualizerActive = false;
+let pipAutoOpened = false;
+let pipUserClosed = false;
+let updateLogSignature = '';
 
 // ============================================
 // WARNING BAR & POPUP CONFIGURATION
@@ -31,6 +39,10 @@ const UPDATE_LOG_CONFIG = {
 };
 
 const SITE_VERSION = 'v1.1.2';
+const SETTINGS_DB_NAME = 'offlineMusicPlayerSettings';
+const SETTINGS_DB_VERSION = 1;
+const SETTINGS_STORE = 'settings';
+let settingsDbPromise = null;
 // ============================================
 // TEMPLATE FOR NEW HTML FILES
 // ============================================
@@ -93,11 +105,15 @@ const volumeSlider = document.getElementById('volumeSlider');
 const playlistContainer = document.getElementById('playlistContainer');
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
+const albumArt = document.getElementById('albumArt');
 const pipContent = document.getElementById('pipContent');
 const pipAnchor = document.getElementById('pipAnchor');
 const clearModalOverlay = document.getElementById('clearModalOverlay');
 const clearModalConfirmBtn = document.getElementById('clearModalConfirmBtn');
 const clearModalCancelBtn = document.getElementById('clearModalCancelBtn');
+const pipVisualizer = document.getElementById('pipVisualizer');
+const pipQueueText = document.getElementById('pipQueueText');
+const themeSelect = document.getElementById('themeSelect');
 
 const PIP_DIMENSIONS = { width: 300, height: 350 };
 let pipWindow = null;
@@ -113,6 +129,10 @@ if (audioPlayer) {
     audioPlayer.addEventListener('ended', handleSongEnd);
     audioPlayer.addEventListener('play', updateTabTitle);
     audioPlayer.addEventListener('pause', updateTabTitle);
+    audioPlayer.addEventListener('play', () => {
+        ensureAudioContext();
+        if (pipWindow) startVisualizer();
+    });
 
     volumeSlider.addEventListener('input', (e) => {
         audioPlayer.volume = e.target.value / 100;
@@ -138,6 +158,10 @@ if (audioPlayer) {
     });
 
     setupPiPBehavior();
+}
+
+if (window.ThemeEngine) {
+    window.ThemeEngine.init({ albumArtEl: albumArt });
 }
 
 // Dropdown Menu Functions
@@ -187,6 +211,7 @@ function addFilesToPlaylist(files) {
     });
 
     renderPlaylist();
+    updateMiniQueue();
     
     if (currentSongIndex === -1 && playlist.length > 0) {
         loadSong(0);
@@ -223,6 +248,8 @@ function loadSong(index) {
     songTitle.textContent = song.name;
     updateSongInfo();
     updateTabTitle();
+    applyDynamicThemeFromArt();
+    updateMiniQueue();
     
     renderPlaylist();
     
@@ -253,6 +280,7 @@ function togglePlay() {
         playPauseBtn.textContent = '▶';
         isPlaying = false;
     } else {
+        ensureAudioContext();
         audioPlayer.play();
         playPauseBtn.textContent = '⏸';
         isPlaying = true;
@@ -264,6 +292,9 @@ function togglePlay() {
 function toggleRepeat() {
     isRepeating = !isRepeating;
     repeatBtn.classList.toggle('active', isRepeating);
+    if (audioPlayer) {
+        audioPlayer.loop = isRepeating;
+    }
     updateSongInfo();
 }
 
@@ -291,6 +322,7 @@ function toggleShuffle() {
     }
     
     updateSongInfo();
+    updateMiniQueue();
 }
 
 function getNextShuffleIndex() {
@@ -324,14 +356,9 @@ function getNextShuffleIndex() {
 }
 
 function handleSongEnd() {
-    if (isRepeating) {
-        // Restart the same song
-        audioPlayer.currentTime = 0;
-        audioPlayer.play();
-    } else {
-        // Go to next song
-        nextSong();
-    }
+    if (isRepeating) return;
+    // Go to next song
+    nextSong();
 }
 
 function previousSong() {
@@ -429,19 +456,20 @@ function removeSong(event, index) {
     }
     
     renderPlaylist();
+    updateMiniQueue();
 }
 
 function toggleTheme() {
-    const body = document.body;
+    const root = document.documentElement;
     const themeToggle = document.querySelector('.theme-toggle');
     
     isDark = !isDark;
     
     if (isDark) {
-        body.setAttribute('data-theme', 'dark');
+        root.setAttribute('data-mode', 'dark');
         themeToggle.textContent = '☀️ Light Mode';
     } else {
-        body.setAttribute('data-theme', 'light');
+        root.setAttribute('data-mode', 'light');
         themeToggle.textContent = '🌙 Dark Mode';
     }
 }
@@ -514,21 +542,23 @@ function setupPiPBehavior() {
 
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
-            openPiPWindow();
-        } else {
-            closePiPWindow();
+            if (!pipWindow && !pipUserClosed && !audioPlayer.paused) {
+                openPiPWindow({ reason: 'visibility' });
+            }
+        } else if (pipWindow && pipAutoOpened) {
+            closePiPWindow({ reason: 'visibility' });
         }
     });
 
     window.addEventListener('pagehide', () => {
-        closePiPWindow();
+        closePiPWindow({ reason: 'visibility' });
     });
 
     const themeObserver = new MutationObserver(syncPiPTheme);
-    themeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-mode'] });
 }
 
-async function openPiPWindow() {
+async function openPiPWindow({ reason } = {}) {
     if (pipWindow || pipOpening || !pipContent || !pipAnchor) return;
     pipOpening = true;
 
@@ -542,6 +572,8 @@ async function openPiPWindow() {
             width: PIP_DIMENSIONS.width,
             height: PIP_DIMENSIONS.height
         });
+        pipAutoOpened = reason === 'visibility';
+        pipUserClosed = false;
         setupPiPWindow(pip);
     } catch (error) {
         console.warn('PiP unavailable:', error);
@@ -553,6 +585,12 @@ async function openPiPWindow() {
 function setupPiPWindow(pip) {
     pipWindow = pip;
 
+    /**
+     * How it works:
+     * The PiP window is a separate document. We move the existing player DOM
+     * into the PiP document, clone stylesheets, and then sync theme attributes
+     * plus CSS variables so the mini window stays visually consistent.
+     */
     pipWindow.previousSong = previousSong;
     pipWindow.rewind15 = rewind15;
     pipWindow.togglePlay = togglePlay;
@@ -577,12 +615,18 @@ function setupPiPWindow(pip) {
     pipWindow.document.head.appendChild(pipStyle);
 
     pipWindow.document.title = 'Music Player';
+    pipWindow.document.documentElement.classList.add('pip-mode');
     pipWindow.document.body.classList.add('pip-mode');
     syncPiPTheme();
     pipWindow.document.body.appendChild(pipContent);
+    ensureAudioContext();
+    resizeVisualizer();
+    setTimeout(resizeVisualizer, 60);
+    startVisualizer();
 
     pipWindow.addEventListener('pagehide', restorePiPContent);
     pipWindow.addEventListener('beforeunload', restorePiPContent);
+    attachPiPShortcuts();
 }
 
 function forcePiPSize() {
@@ -600,29 +644,133 @@ function forcePiPSize() {
 }
 
 function syncPiPTheme() {
-    if (!pipWindow || !pipWindow.document || !document.body) return;
-    const currentTheme = document.body.getAttribute('data-theme');
+    if (!pipWindow || !pipWindow.document || !document.documentElement) return;
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const currentMode = document.documentElement.getAttribute('data-mode');
+    const targetRoot = pipWindow.document.documentElement;
+
     if (currentTheme) {
-        pipWindow.document.body.setAttribute('data-theme', currentTheme);
+        targetRoot.setAttribute('data-theme', currentTheme);
     } else {
-        pipWindow.document.body.removeAttribute('data-theme');
+        targetRoot.removeAttribute('data-theme');
     }
+    if (currentMode) {
+        targetRoot.setAttribute('data-mode', currentMode);
+    } else {
+        targetRoot.removeAttribute('data-mode');
+    }
+
+    const source = getComputedStyle(document.documentElement);
+    const vars = [
+        '--ui-accent',
+        '--ui-accent-2',
+        '--ui-bg',
+        '--ui-surface',
+        '--ui-surface-2',
+        '--ui-progress-fill',
+        '--ui-glow',
+        '--ui-border',
+        '--ui-text',
+        '--ui-text-muted',
+        '--ui-progress-bg'
+    ];
+    vars.forEach((name) => {
+        targetRoot.style.setProperty(name, source.getPropertyValue(name));
+    });
 }
 
 function restorePiPContent() {
     if (!pipContent || !pipAnchor || pipContent.ownerDocument === document) return;
+    detachPiPShortcuts();
     pipAnchor.parentElement.insertBefore(pipContent, pipAnchor);
     pipWindow = null;
+    stopVisualizer();
 }
 
-function closePiPWindow() {
+function closePiPWindow({ reason } = {}) {
     if (!pipWindow) return;
     try {
         pipWindow.close();
     } catch (error) {
         console.warn('PiP close failed:', error);
     }
+    if (reason !== 'visibility') {
+        pipUserClosed = true;
+    }
+    pipAutoOpened = false;
     restorePiPContent();
+}
+
+// ============================================
+// PIP SHORTCUTS
+// ============================================
+
+let pipKeydownHandler = null;
+let pipKeyupHandler = null;
+
+function attachPiPShortcuts() {
+    if (!pipWindow || !pipWindow.document || pipKeydownHandler) return;
+
+    pipKeydownHandler = (e) => {
+        const tag = e.target.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable) return;
+
+        switch (e.code) {
+            case 'Space':
+                e.preventDefault();
+                e.stopPropagation();
+                togglePlay();
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                rewind15();
+                break;
+            case 'ArrowRight':
+                e.preventDefault();
+                forward15();
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                previousSong();
+                break;
+            case 'ArrowDown':
+                e.preventDefault();
+                nextSong();
+                break;
+            case 'KeyR':
+                e.preventDefault();
+                toggleRepeat();
+                break;
+            case 'KeyS':
+                e.preventDefault();
+                toggleShuffle();
+                break;
+        }
+    };
+
+    pipKeyupHandler = (e) => {
+        const tag = e.target.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable) return;
+        if (e.code === 'Space') {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    };
+
+    pipWindow.document.addEventListener('keydown', pipKeydownHandler, { capture: true });
+    pipWindow.document.addEventListener('keyup', pipKeyupHandler, { capture: true });
+}
+
+function detachPiPShortcuts() {
+    if (!pipWindow || !pipWindow.document) return;
+    if (pipKeydownHandler) {
+        pipWindow.document.removeEventListener('keydown', pipKeydownHandler, { capture: true });
+        pipKeydownHandler = null;
+    }
+    if (pipKeyupHandler) {
+        pipWindow.document.removeEventListener('keyup', pipKeyupHandler, { capture: true });
+        pipKeyupHandler = null;
+    }
 }
 
 // ============================================
@@ -645,6 +793,55 @@ function setCookieValue(name, value, days) {
     document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; samesite=lax`;
 }
 
+function initSettingsDb() {
+    if (!('indexedDB' in window)) return Promise.resolve(null);
+    if (settingsDbPromise) return settingsDbPromise;
+    settingsDbPromise = new Promise((resolve, reject) => {
+        const request = indexedDB.open(SETTINGS_DB_NAME, SETTINGS_DB_VERSION);
+        request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains(SETTINGS_STORE)) {
+                db.createObjectStore(SETTINGS_STORE);
+            }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+    return settingsDbPromise;
+}
+
+async function getSetting(key) {
+    try {
+        const db = await initSettingsDb();
+        if (!db) return null;
+        return await new Promise((resolve) => {
+            const tx = db.transaction(SETTINGS_STORE, 'readonly');
+            const store = tx.objectStore(SETTINGS_STORE);
+            const req = store.get(key);
+            req.onsuccess = () => resolve(req.result ?? null);
+            req.onerror = () => resolve(null);
+        });
+    } catch (error) {
+        return null;
+    }
+}
+
+async function setSetting(key, value) {
+    try {
+        const db = await initSettingsDb();
+        if (!db) return;
+        await new Promise((resolve) => {
+            const tx = db.transaction(SETTINGS_STORE, 'readwrite');
+            const store = tx.objectStore(SETTINGS_STORE);
+            const req = store.put(value, key);
+            req.onsuccess = () => resolve();
+            req.onerror = () => resolve();
+        });
+    } catch (error) {
+        // Ignore settings persistence errors
+    }
+}
+
 /**
  * Initialize update log modal visibility based on cookie and configuration
  */
@@ -652,7 +849,7 @@ function getUpdateLogSignature(payload) {
     return payload.join('|');
 }
 
-function initializeUpdateLog() {
+async function initializeUpdateLog() {
     const updateLog = document.querySelector('.update-log');
     if (!updateLog) return;
 
@@ -683,9 +880,13 @@ function initializeUpdateLog() {
         appliedVersion,
         ...appliedItems
     ]);
+    updateLogSignature = signature;
 
+    const updateLogKey = updateLog.dataset.updateLogKey || 'update_log_seen';
+    const stored = await getSetting(updateLogKey);
+    const cookieSeen = getCookieValue(updateLogKey);
     const shouldShow = UPDATE_LOG_CONFIG && UPDATE_LOG_CONFIG.enabled &&
-        getCookieValue('update_log_seen') !== signature;
+        stored !== signature && cookieSeen !== signature;
 
     if (title && appliedTitle) title.textContent = appliedTitle;
     if (version && appliedVersion) version.textContent = appliedVersion;
@@ -741,7 +942,31 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    if (themeSelect) {
+        const savedTheme = localStorage.getItem('ui-theme') || document.documentElement.getAttribute('data-theme') || 'classic';
+        themeSelect.value = savedTheme;
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        if (window.ThemeEngine) {
+            window.ThemeEngine.setThemePreset(savedTheme);
+        }
+
+        themeSelect.addEventListener('change', (e) => {
+            const nextTheme = e.target.value;
+            document.documentElement.setAttribute('data-theme', nextTheme);
+            if (window.ThemeEngine) {
+                window.ThemeEngine.setThemePreset(nextTheme);
+            }
+            localStorage.setItem('ui-theme', nextTheme);
+            if (pipWindow) {
+                syncPiPTheme();
+            }
+        });
+    }
+
+    updateMiniQueue();
 });
+
 
 // ============================================
 // WARNING POPUP & BAR FUNCTIONS
@@ -842,6 +1067,7 @@ function clearAllSongs() {
 
     renderPlaylist();
     updateTabTitle();
+    updateMiniQueue();
 }
 
 /**
@@ -851,7 +1077,12 @@ function closeUpdateLog() {
     const updateLog = document.querySelector('.update-log');
     if (!updateLog) return;
     updateLog.style.display = 'none';
-    setCookieValue('update_log_seen', getUpdateLogSignature(), 365);
+    const updateLogKey = updateLog.dataset.updateLogKey || 'update_log_seen';
+    const signature = updateLogSignature || '';
+    if (signature) {
+        setCookieValue(updateLogKey, signature, 365);
+        setSetting(updateLogKey, signature);
+    }
 }
 
 /**
@@ -875,6 +1106,17 @@ document.addEventListener('click', (e) => {
         closeUpdateLog();
     }
 });
+
+// ============================================
+// THEME ENGINE INTEGRATION
+// ============================================
+
+function applyDynamicThemeFromArt() {
+    if (!window.ThemeEngine || !albumArt) return;
+    if (albumArt.src) {
+        window.ThemeEngine.applyVibrantFromImage(albumArt);
+    }
+}
 
 // ============================================
 // STREAMING SUPPORT MODULE
@@ -1026,4 +1268,107 @@ async function addStreamingLink(url) {
         alert('Error: ' + error.message);
         renderPlaylist();
     }
+}
+
+// ============================================
+// AUDIO CONTEXT + VISUALIZER
+// ============================================
+
+/**
+ * How it works:
+ * We create a single AudioContext + AnalyserNode for the HTMLAudioElement.
+ * The analyser reads frequency data for a lightweight canvas renderer
+ * that only runs while the PiP window is open.
+ */
+function ensureAudioContext() {
+    if (!audioContext) {
+        audioContext = new AudioContext();
+        const source = audioContext.createMediaElementSource(audioPlayer);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.85;
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        analyserData = new Uint8Array(analyser.frequencyBinCount);
+    }
+
+    if (audioContext.state === 'suspended') {
+        audioContext.resume().catch(() => {});
+    }
+}
+
+function startVisualizer() {
+    if (!pipVisualizer || !analyser || visualizerRaf) return;
+    visualizerActive = true;
+    resizeVisualizer();
+    const ctx = pipVisualizer.getContext('2d');
+
+    const draw = () => {
+        if (!visualizerActive) return;
+        analyser.getByteFrequencyData(analyserData);
+        const { width, height } = pipVisualizer;
+
+        ctx.clearRect(0, 0, width, height);
+        const barCount = Math.min(48, analyserData.length);
+        const barWidth = width / barCount;
+
+        for (let i = 0; i < barCount; i++) {
+            const value = analyserData[i] / 255;
+            const barHeight = Math.max(4, value * height);
+            const x = i * barWidth;
+            const y = height - barHeight;
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--ui-accent').trim() || '#00b3ff';
+            ctx.fillRect(x + 1, y, barWidth - 2, barHeight);
+        }
+
+        visualizerRaf = requestAnimationFrame(draw);
+    };
+
+    draw();
+}
+
+function stopVisualizer() {
+    visualizerActive = false;
+    if (visualizerRaf) {
+        cancelAnimationFrame(visualizerRaf);
+        visualizerRaf = null;
+    }
+}
+
+function resizeVisualizer() {
+    if (!pipVisualizer) return;
+    const rect = pipVisualizer.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    pipVisualizer.width = Math.floor(rect.width * ratio);
+    pipVisualizer.height = Math.floor(rect.height * ratio);
+}
+
+// ============================================
+// MINI QUEUE (PiP)
+// ============================================
+
+function updateMiniQueue() {
+    if (!pipQueueText) return;
+    if (!playlist.length) {
+        pipQueueText.textContent = 'No tracks queued';
+        return;
+    }
+
+    if (isRepeating && currentSongIndex !== -1) {
+        pipQueueText.textContent = `Repeating: ${playlist[currentSongIndex].name}`;
+        return;
+    }
+
+    if (isShuffling) {
+        const remaining = playlist.length - playHistory.length;
+        pipQueueText.textContent = `Shuffle mode • ${Math.max(0, remaining)} remaining`;
+        return;
+    }
+
+    const nextIndex = currentSongIndex === -1
+        ? 0
+        : (currentSongIndex < playlist.length - 1 ? currentSongIndex + 1 : 0);
+
+    const nextTrack = playlist[nextIndex];
+    pipQueueText.textContent = nextTrack ? `Next: ${nextTrack.name}` : 'No tracks queued';
 }
