@@ -1,34 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-mode="dark" data-theme="classic">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Future Feature Ideas</title>
+    <title>Music Player Ideas</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
-        :root {
-            --bg-primary: #f0f2f5;
-            --bg-secondary: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --accent: #007bff;
-            --accent-hover: #0056b3;
-            --border: #e1e5e9;
-            --shadow: rgba(0, 0, 0, 0.1);
-        }
-
-        [data-theme="dark"] {
-            --bg-primary: #0f0f0f;
-            --bg-secondary: #1a1a1a;
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --accent: #dc3545;
-            --accent-hover: #c82333;
-            --border: #333333;
-            --shadow: rgba(0, 0, 0, 0.5);
-        }
-
         body {
             background-color: var(--bg-primary);
             color: var(--text-primary);
@@ -52,7 +30,8 @@
         }
 
         .home-btn,
-        .theme-toggle-btn {
+        .theme-toggle,
+        .theme-select {
             background-color: var(--bg-secondary);
             color: var(--text-primary);
             border: 2px solid var(--border);
@@ -67,7 +46,8 @@
         }
 
         .home-btn:hover,
-        .theme-toggle-btn:hover {
+        .theme-toggle:hover,
+        .theme-select:hover {
             border-color: var(--accent);
             box-shadow: 0 0 5px var(--shadow);
         }
@@ -84,9 +64,14 @@
         }
 
         .ideas-header h1 {
-            font-size: 2.5em;
+            font-size: 2.2em;
             margin-bottom: 10px;
             color: var(--text-primary);
+        }
+
+        .ideas-header p {
+            color: var(--text-secondary);
+            margin-top: 6px;
         }
 
         .ideas-description {
@@ -100,10 +85,16 @@
             background-color: var(--bg-secondary);
             color: var(--text-primary);
             padding: 15px;
-            border-radius: 4px;
+            border-radius: 8px;
             margin-bottom: 20px;
-            border-left: 4px solid var(--accent);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 20px var(--shadow);
             transition: background-color 0.3s, color 0.3s;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 6px;
         }
 
         .form-group {
@@ -149,7 +140,7 @@
         }
 
         .submit-btn {
-            background-color: #4CAF50;
+            background-color: var(--accent);
             color: white;
             padding: 12px 30px;
             border: none;
@@ -161,7 +152,7 @@
         }
 
         .submit-btn:hover {
-            background-color: #45a049;
+            background-color: var(--accent-hover);
         }
 
         .submit-btn:disabled {
@@ -200,20 +191,29 @@
 <body>
     <div class="header-buttons">
         <a href="index.html" class="home-btn">← Home</a>
-        <button class="theme-toggle-btn" id="themeToggle">Switch to Light Mode</button>
+        <select class="theme-select" id="themeSelect" aria-label="Theme">
+            <option value="classic">Classic</option>
+            <option value="synthwave">Retro Synthwave</option>
+            <option value="glass">Glassmorphism Frost</option>
+            <option value="forest">Forest</option>
+            <option value="cyberpunk">Cyberpunk</option>
+        </select>
+        <button class="theme-toggle" onclick="toggleTheme()">☀️ Light Mode</button>
     </div>
 
     <div class="ideas-container">
         <div class="ideas-header">
-            <h1>Future Feature Ideas</h1>
+            <h1>Music Player Ideas</h1>
+            <p>Share feature requests or workflow improvements for the Offline Music Player.</p>
         </div>
 
         <div class="info-box">
-        <strong>Note: Please ensure your email is correct to receive a confirmation email. Emails are only used for confirmation and will not be shared. We will review all suggestions, but cannot guarantee implementation. We may reach out for additional details. Thank you for your input! - BloodVine</strong>
-      </div>
+            <strong>How it works</strong>
+            <span>Your message is sent through a Google Apps Script endpoint and we use your email only for confirmation or follow‑up.</span>
+        </div>
         
         <div class="ideas-description">
-            <p>Explain what feature you would like to be added.</p>
+            <p>Tell us what you want improved and why it matters to your listening flow.</p>
         </div>
 
         <div id="successMessage" class="success-message">
@@ -230,8 +230,8 @@
 
         <form id="ideasForm">
             <div class="form-group">
-                <label for="username">Cubic Castles Username <span class="required">*</span></label>
-                <input type="text" id="username" name="username" required>
+                <label for="username">Name or Handle <span class="required">*</span></label>
+                <input type="text" id="username" name="username" placeholder="Your name or alias" required>
             </div>
 
             <div class="form-group">
@@ -240,39 +240,22 @@
             </div>
 
             <div class="form-group">
-                <label for="message">Future Feature Idea <span class="required">*</span></label>
-                <textarea id="message" name="message" required></textarea>
+                <label for="message">Idea or Bug Report <span class="required">*</span></label>
+                <textarea id="message" name="message" placeholder="Example: Add a sleep timer with a countdown overlay" required></textarea>
             </div>
 
-            <button type="submit" class="submit-btn" id="submitBtn">Submit Idea</button>
+            <div class="form-group">
+                <label for="context">Context (optional)</label>
+                <textarea id="context" name="context" placeholder="Why is this needed? How do you use the player?"></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">Send to the Team</button>
         </form>
     </div>
 
     <script>
-        // Theme Toggle Functionality
-        const themeToggle = document.getElementById('themeToggle');
-        const htmlElement = document.documentElement;
-
-        // Initialize theme from localStorage or default to dark
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        htmlElement.setAttribute('data-theme', savedTheme);
-        updateThemeButtonText(savedTheme);
-
-        function updateThemeButtonText(theme) {
-            themeToggle.textContent = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
-        }
-
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = htmlElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            htmlElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeButtonText(newTheme);
-        });
-
         // Form Submission
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-BkeqCcZBDiyZdEWJ2O3jFD4277olz4rdl4vwH4zuLR0n7QZg71Hcb27M-02q918Q/exec'; // Replace with your Google Apps Script URL
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFT1QxqcyNZiJlkiEahBCytiKSNesDLCjlSI4-ednt7ETUOOE02OYCoI3ah1w8OgV0fA/exec'; // Replace with your Google Apps Script URL
 
         const form = document.getElementById('ideasForm');
         const submitBtn = document.getElementById('submitBtn');
@@ -286,6 +269,7 @@
             const username = document.getElementById('username').value.trim();
             const email = document.getElementById('email').value.trim();
             const message = document.getElementById('message').value.trim();
+            const context = document.getElementById('context').value.trim();
 
             if (!username || !email || !message) {
                 errorMessage.textContent = 'Please fill in all required fields.';
@@ -303,6 +287,7 @@
             formData.append('username', username);
             formData.append('email', email);
             formData.append('message', message);
+            formData.append('context', context);
 
             fetch(SCRIPT_URL, {
                 method: 'POST',
@@ -329,5 +314,7 @@
             });
         });
     </script>
+    <script src="themes.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

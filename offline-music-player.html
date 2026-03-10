@@ -1,629 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-mode="dark" data-theme="classic">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎵 Music Player</title>
-    <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-:root {
-    --bg-primary: #f0f2f5;
-    --bg-secondary: #ffffff;
-    --text-primary: #1a1a1a;
-    --text-secondary: #666666;
-    --accent: #007bff;
-    --accent-hover: #0056b3;
-    --border: #e1e5e9;
-    --shadow: rgba(0, 0, 0, 0.1);
-    --progress-bg: #e9ecef;
-    --progress-fill: #007bff;
-}
-
-[data-theme="dark"] {
-    --bg-primary: #0f0f0f;
-    --bg-secondary: #1a1a1a;
-    --text-primary: #ffffff;
-    --text-secondary: #b0b0b0;
-    --accent: #dc3545;
-    --accent-hover: #c82333;
-    --border: #333333;
-    --shadow: rgba(0, 0, 0, 0.5);
-    --progress-bg: #333333;
-    --progress-fill: #dc3545;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    min-height: 100vh;
-    transition: all 0.3s ease;
-    padding-top: 50px;
-}
-
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-}
-
-.title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--accent);
-}
-
-.header-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.theme-toggle {
-    background: var(--bg-secondary);
-    border: 2px solid var(--border);
-    border-radius: 50px;
-    padding: 8px 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: var(--text-primary);
-    font-size: 14px;
-}
-
-.theme-toggle:hover {
-    border-color: var(--accent);
-}
-
-/* Dropdown Menu Styles */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-btn {
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.dropdown-btn:hover {
-    background: var(--accent-hover);
-    transform: translateY(-2px);
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    background: var(--bg-secondary);
-    min-width: 200px;
-    box-shadow: 0 8px 16px var(--shadow);
-    border-radius: 10px;
-    z-index: 1000;
-    overflow: hidden;
-    border: 2px solid var(--border);
-    margin-top: 5px;
-}
-
-.dropdown.active .dropdown-content {
-    display: block;
-}
-
-.dropdown-item {
-    color: var(--text-primary);
-    padding: 12px 16px;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.dropdown-item:hover {
-    background: var(--bg-primary);
-    color: var(--accent);
-}
-
-.dropdown-item:not(:last-child) {
-    border-bottom: 1px solid var(--border);
-}
-
-.player-container {
-    background: var(--bg-secondary);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 10px 30px var(--shadow);
-    margin-bottom: 30px;
-}
-
-.upload-area {
-    border: 3px dashed var(--border);
-    border-radius: 15px;
-    padding: 40px;
-    text-align: center;
-    margin-bottom: 30px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.upload-area.dragover {
-    border-color: var(--accent);
-    background: var(--accent);
-    opacity: 0.1;
-}
-
-.upload-area:hover {
-    border-color: var(--accent);
-}
-
-.upload-text {
-    font-size: 1.2rem;
-    color: var(--text-secondary);
-    margin-bottom: 15px;
-}
-
-.file-input {
-    display: none;
-}
-
-.upload-btn {
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 25px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.3s ease;
-}
-
-.upload-btn:hover {
-    background: var(--accent-hover);
-    transform: translateY(-2px);
-}
-
-.upload-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 10px;
-}
-
-.clear-btn {
-    background: #d9534f;
-}
-
-.clear-btn:hover {
-    background: #c9302c;
-}
-
-.streaming-area {
-    background: var(--bg-primary);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 30px;
-    border: 2px solid var(--border);
-}
-
-.streaming-input {
-    flex: 1;
-    padding: 10px 15px;
-    border: 2px solid var(--border);
-    border-radius: 25px;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-size: 14px;
-    transition: all 0.3s ease;
-    min-width: 200px;
-}
-
-.streaming-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-}
-
-.streaming-input::placeholder {
-    color: var(--text-secondary);
-}
-
-.current-song {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.song-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 5px;
-}
-
-.song-info {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-.control-btn {
-    background: var(--bg-primary);
-    border: 2px solid var(--border);
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: var(--text-primary);
-    font-size: 18px;
-}
-
-.control-btn:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-}
-
-.control-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: white;
-}
-
-.control-btn.active:hover {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
-}
-
-.play-pause-btn {
-    width: 60px;
-    height: 60px;
-    background: var(--accent);
-    border-color: var(--accent);
-    color: white;
-    font-size: 24px;
-}
-
-.play-pause-btn:hover {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
-}
-
-.progress-container {
-    margin-bottom: 20px;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 8px;
-    background: var(--progress-bg);
-    border-radius: 4px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: var(--progress-fill);
-    border-radius: 4px;
-    transition: width 0.1s ease;
-    width: 0%;
-}
-
-.time-display {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-}
-
-.volume-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-.volume-slider {
-    width: 150px;
-    height: 6px;
-    background: var(--progress-bg);
-    border-radius: 3px;
-    outline: none;
-    cursor: pointer;
-    -webkit-appearance: none;
-    appearance: none;
-}
-
-.volume-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    background: var(--accent);
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.volume-slider::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    background: var(--accent);
-    border-radius: 50%;
-    cursor: pointer;
-    border: none;
-}
-
-.playlist {
-    background: var(--bg-secondary);
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 5px 15px var(--shadow);
-}
-
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.modal-overlay.active {
-    display: flex;
-}
-
-.modal {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    width: min(420px, 90vw);
-    box-shadow: 0 20px 60px var(--shadow);
-}
-
-.modal-title {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-}
-
-.modal-text {
-    color: var(--text-secondary);
-    margin-bottom: 20px;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-}
-
-.update-log-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.95rem;
-    margin-bottom: 12px;
-}
-
-.update-log-label {
-    color: var(--text-secondary);
-}
-
-.update-log-version {
-    font-weight: 600;
-}
-
-.update-log-list {
-    padding-left: 18px;
-    color: var(--text-primary);
-    margin-bottom: 20px;
-}
-
-.btn-secondary {
-    background: transparent;
-    color: var(--text-primary);
-    border: 1px solid var(--border);
-}
-
-.btn-secondary:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-}
-
-.playlist-title {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.playlist-item {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-bottom: 10px;
-    border: 2px solid transparent;
-}
-
-.playlist-item:hover {
-    background: var(--bg-primary);
-}
-
-.playlist-item.active {
-    background: var(--accent);
-    color: white;
-}
-
-.playlist-item.active:hover {
-    background: var(--accent-hover);
-}
-
-.song-number {
-    width: 30px;
-    text-align: center;
-    font-weight: 600;
-    margin-right: 15px;
-}
-
-.song-details {
-    flex: 1;
-}
-
-.song-name {
-    font-weight: 500;
-    margin-bottom: 3px;
-}
-
-.song-duration {
-    font-size: 0.85rem;
-    opacity: 0.8;
-}
-
-.remove-btn {
-    background: #ffc107;
-    color: #000;
-    border: none;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    opacity: 0;
-}
-
-.playlist-item:hover .remove-btn {
-    opacity: 1;
-}
-
-.remove-btn:hover {
-    background: #ffca2c;
-    transform: scale(1.1);
-}
-
-.empty-playlist {
-    text-align: center;
-    padding: 40px;
-    color: var(--text-secondary);
-}
-
-.repeat-indicator {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    width: 12px;
-    height: 12px;
-    background: var(--accent);
-    border-radius: 50%;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.control-btn.active .repeat-indicator {
-    opacity: 1;
-}
-
-@media (max-width: 600px) {
-    .container {
-        padding: 10px;
-    }
-    
-    .controls {
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-    
-    .control-btn {
-        width: 45px;
-        height: 45px;
-        font-size: 16px;
-    }
-    
-    .play-pause-btn {
-        width: 60px;
-        height: 60px;
-        font-size: 24px;
-    }
-    
-    .volume-container {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .header {
-        flex-wrap: wrap;
-    }
-
-    .dropdown-content {
-        right: 0;
-        left: auto;
-    }
-}
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body data-theme="dark">
+<body>
+    <!-- Warning Bar (Top of Site) -->
+    <div class="warning-bar" style="display: none;">
+        <div class="warning-bar-content">
+            ⚠️ Some features are currently disabled or experiencing issues
+        </div>
+    </div>
+
+    <!-- Update Log Modal -->
+    <div class="update-log" style="display: none;" data-update-log-key="update_log_seen">
+        <div class="update-log-content">
+            <div class="update-log-header">
+                <h2 data-update-log-title>Update Log</h2>
+                <button class="update-log-close" onclick="closeUpdateLog()">×</button>
+            </div>
+            <div class="update-log-body">
+                <div class="update-log-meta">
+                    <span class="update-log-label">Latest update:</span>
+                    <span class="update-log-version" data-update-log-version>Feb 20, 2026</span>
+                </div>
+                <ul class="update-log-list" data-update-log-items>
+                    <li>Updates coming soon: Search for a song and play it directly from your playlist. </li>
+                </ul>
+            </div>
+            <div class="update-log-footer">
+                <button class="update-log-btn" onclick="closeUpdateLog()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1 class="title">🎵 Music Player</h1>
             <div class="header-controls">
+                <select class="theme-select" id="themeSelect" aria-label="Theme">
+                    <option value="classic">Classic</option>
+                    <option value="synthwave">Retro Synthwave</option>
+                    <option value="glass">Glassmorphism Frost</option>
+                    <option value="forest">Forest</option>
+                    <option value="cyberpunk">Cyberpunk</option>
+                </select>
                 <button class="theme-toggle" onclick="toggleTheme()">☀️ Light Mode</button>
                 <div class="dropdown" id="menuDropdown">
                     <button class="dropdown-btn" onclick="toggleDropdown()">
                         ☰ Menu
                     </button>
                     <div class="dropdown-content">
-                        <a href="#" class="dropdown-item" onclick="openUpdateLog(); return false;">
-                            <span>📝</span>
-                            <span>Updates</span>
-                        </a>
                         <a href="https://github.com/offline-music-player/offline-music-player.github.io" target="_blank" class="dropdown-item">
                             <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
                                 <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
                             </svg>
                             <span>GitHub Repository</span>
                         </a>
-                        <a href="mailto:offline-music-player@proton.me" class="dropdown-item" target="_blank" rel="noopener">
+                        <a href="mailto:bloodyvcc@protonmail.com" class="dropdown-item" target="_blank" rel="noopener">
                             <span>✉️</span>
                             <span>Send Email</span>
                         </a>
@@ -632,66 +68,82 @@ body {
             </div>
         </div>
 
-        <div class="player-container">
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-text">Drag & drop MP3 files here or</div>
-                <div class="upload-actions">
-                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
-                    <button class="upload-btn clear-btn" onclick="openClearConfirm()">Clear Songs</button>
-                    <input type="file" id="fileInput" class="file-input" accept=".mp3,.wav,.ogg,.m4a" multiple>
+        <div id="pipContent">
+            <div class="player-container">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-text">Drag & drop MP3 files here or</div>
+                    <div class="upload-actions">
+                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+                        <button class="upload-btn clear-btn" onclick="openClearConfirm()">Clear Songs</button>
+                        <input type="file" id="fileInput" class="file-input" accept=".mp3,.wav,.ogg,.m4a" multiple>
+                    </div>
+                </div>
+
+                <div class="current-song" id="currentSong">
+                    <div class="song-title" id="songTitle">No song selected</div>
+                    <div class="song-info" id="songInfo">Select a song to start playing</div>
+                </div>
+
+                <img id="albumArt" class="album-art" alt="" hidden>
+
+                <div class="controls">
+                    <button class="control-btn" onclick="previousSong()">⏮</button>
+                    <button class="control-btn" onclick="rewind15()">⏪</button>
+                    <button class="control-btn play-pause-btn" id="playPauseBtn" onclick="togglePlay()">▶</button>
+                    <button class="control-btn" onclick="forward15()">⏩</button>
+                    <button class="control-btn" onclick="nextSong()">⏭</button>
+                    <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()" title="Repeat current song">
+                        🔁
+                        <div class="repeat-indicator"></div>
+                    </button>
+                    <button class="control-btn" id="shuffleBtn" onclick="toggleShuffle()" title="Shuffle playlist">
+                        🔀
+                        <div class="repeat-indicator"></div>
+                    </button>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar" onclick="seekTo(event)">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="totalTime">0:00</span>
+                    </div>
+                </div>
+
+                <div class="volume-container">
+                    <span>🔈</span>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50">
+                    <span>🔊</span>
+                </div>
+
+                <div class="pip-utility" aria-hidden="true">
+                    <canvas id="pipVisualizer" width="260" height="48"></canvas>
+                    <div class="pip-queue">
+                        <div class="pip-queue-label">Up Next</div>
+                        <div class="pip-queue-ticker">
+                            <span id="pipQueueText">No tracks queued</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="current-song" id="currentSong">
-                <div class="song-title" id="songTitle">No song selected</div>
-                <div class="song-info" id="songInfo">Select a song to start playing</div>
-            </div>
-
-            <div class="controls">
-                <button class="control-btn" onclick="previousSong()">⏮</button>
-                <button class="control-btn" onclick="rewind15()">⏪</button>
-                <button class="control-btn play-pause-btn" id="playPauseBtn" onclick="togglePlay()">▶</button>
-                <button class="control-btn" onclick="forward15()">⏩</button>
-                <button class="control-btn" onclick="nextSong()">⏭</button>
-                <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()" title="Repeat current song">
-                    🔁
-                    <div class="repeat-indicator"></div>
-                </button>
-                <button class="control-btn" id="shuffleBtn" onclick="toggleShuffle()" title="Shuffle playlist">
-                    🔀
-                    <div class="repeat-indicator"></div>
-                </button>
-            </div>
-
-            <div class="progress-container">
-                <div class="progress-bar" id="progressBar" onclick="seekTo(event)">
-                    <div class="progress-fill" id="progressFill"></div>
+            <div class="playlist">
+                <div class="playlist-title">Playlist</div>
+                <div id="playlistContainer">
+                    <div class="empty-playlist">Your playlist is empty. Add some music to get started!</div>
                 </div>
-                <div class="time-display">
-                    <span id="currentTime">0:00</span>
-                    <span id="totalTime">0:00</span>
-                </div>
-            </div>
-
-            <div class="volume-container">
-                <span>🔈</span>
-                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50">
-                <span>🔊</span>
             </div>
         </div>
+        <div id="pipAnchor"></div>
 
-        <div class="playlist">
-            <div class="playlist-title">Playlist</div>
-            <div id="playlistContainer">
-                <div class="empty-playlist">Your playlist is empty. Add some music to get started!</div>
-            </div>
-        </div>
     </div>
 
-    <div class="modal-overlay" id="clearModalOverlay" role="dialog" aria-modal="true" aria-labelledby="clearModalTitle" aria-describedby="clearModalText">
+    <div class="modal-overlay" id="clearModalOverlay" role="dialog" aria-modal="true" aria-labelledby="clearModalTitle" aria-describedby="clearModalText" aria-hidden="true" hidden>
         <div class="modal">
             <div class="modal-title" id="clearModalTitle">Clear all songs?</div>
-            <div class="modal-text" id="clearModalText">This will remove every song from your playlist and saved library. This cannot be undone.</div>
+            <div class="modal-text" id="clearModalText">This will remove every song from your playlist. This cannot be undone.</div>
             <div class="modal-actions">
                 <button class="upload-btn btn-secondary" id="clearModalCancelBtn">Cancel</button>
                 <button class="upload-btn clear-btn" id="clearModalConfirmBtn">Clear Songs</button>
@@ -699,684 +151,9 @@ body {
         </div>
     </div>
 
-    <div class="modal-overlay" id="updateModalOverlay" role="dialog" aria-modal="true" aria-labelledby="updateModalTitle">
-        <div class="modal">
-            <div class="modal-title" id="updateModalTitle">Update Log</div>
-            <div class="update-log-meta">
-                <span class="update-log-label">Latest update:</span>
-                <span class="update-log-version" id="updateModalVersion">Feb 11, 2026</span>
-            </div>
-            <ul class="update-log-list" id="updateModalList">
-                <li>Current issues: Auto-select song upon upload but it will auto-select when indexeddb loads songs. </li>
-            </ul>
-            <div class="modal-actions">
-                <button class="upload-btn btn-secondary" id="updateModalCloseBtn">Close</button>
-            </div>
-        </div>
-    </div>
-
     <audio id="audioPlayer" preload="metadata"></audio>
-    <script>
-// Music player variables
-let playlist = [];
-let currentSongIndex = -1;
-let isPlaying = false;
-let isDark = true;
-let isRepeating = false;
-let isShuffling = false;
-let playHistory = [];
-
-// IndexedDB constants
-const DB_NAME = 'offlineMusicPlayerDB';
-const DB_VERSION = 1;
-const STORE_NAME = 'songs';
-let dbAvailable = false;
-let dbPromise = null;
-const UPDATE_LOG = {
-    version: 'Feb 11, 2026',
-    uploadsKey: 'uploads-v1'
-};
-
-// DOM elements
-const audioPlayer = document.getElementById('audioPlayer');
-const playPauseBtn = document.getElementById('playPauseBtn');
-const repeatBtn = document.getElementById('repeatBtn');
-const shuffleBtn = document.getElementById('shuffleBtn');
-const songTitle = document.getElementById('songTitle');
-const songInfo = document.getElementById('songInfo');
-const progressBar = document.getElementById('progressBar');
-const progressFill = document.getElementById('progressFill');
-const currentTime = document.getElementById('currentTime');
-const totalTime = document.getElementById('totalTime');
-const volumeSlider = document.getElementById('volumeSlider');
-const playlistContainer = document.getElementById('playlistContainer');
-const uploadArea = document.getElementById('uploadArea');
-const fileInput = document.getElementById('fileInput');
-const clearModalOverlay = document.getElementById('clearModalOverlay');
-const clearModalConfirmBtn = document.getElementById('clearModalConfirmBtn');
-const clearModalCancelBtn = document.getElementById('clearModalCancelBtn');
-const updateModalOverlay = document.getElementById('updateModalOverlay');
-const updateModalCloseBtn = document.getElementById('updateModalCloseBtn');
-const updateModalVersion = document.getElementById('updateModalVersion');
-
-// Initialize (only if audio player exists on this page)
-if (audioPlayer) {
-    audioPlayer.volume = 0.5;
-
-    // Event Listeners
-    audioPlayer.addEventListener('loadedmetadata', updateSongInfo);
-    audioPlayer.addEventListener('timeupdate', updateProgress);
-    audioPlayer.addEventListener('ended', handleSongEnd);
-    audioPlayer.addEventListener('play', updateTabTitle);
-    audioPlayer.addEventListener('pause', updateTabTitle);
-
-    volumeSlider.addEventListener('input', (e) => {
-        audioPlayer.volume = e.target.value / 100;
-    });
-
-    fileInput.addEventListener('change', handleFileSelect);
-
-    // Drag and drop functionality
-    uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.classList.add('dragover');
-    });
-
-    uploadArea.addEventListener('dragleave', () => {
-        uploadArea.classList.remove('dragover');
-    });
-
-    uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.classList.remove('dragover');
-        const files = Array.from(e.dataTransfer.files);
-        addFilesToPlaylist(files);
-    });
-
-    clearModalConfirmBtn.addEventListener('click', confirmClearSongs);
-    clearModalCancelBtn.addEventListener('click', closeClearConfirm);
-    clearModalOverlay.addEventListener('click', (e) => {
-        if (e.target === clearModalOverlay) {
-            closeClearConfirm();
-        }
-    });
-
-    updateModalCloseBtn.addEventListener('click', closeUpdateLog);
-    updateModalOverlay.addEventListener('click', (e) => {
-        if (e.target === updateModalOverlay) {
-            closeUpdateLog();
-        }
-    });
-
-    if (updateModalVersion) {
-        updateModalVersion.textContent = UPDATE_LOG.version;
-    }
-    maybeShowUpdateLogForUploads();
-
-    // Initialize IndexedDB and load saved songs
-    initIndexedDB()
-        .then(loadSongsFromDB)
-        .catch(() => {
-            // IndexedDB unavailable; proceed without persistence
-        });
-}
-
-// Dropdown Menu Functions
-function toggleDropdown() {
-    const dropdown = document.getElementById('menuDropdown');
-    dropdown.classList.toggle('active');
-}
-
-// Close dropdown when clicking outside
-window.addEventListener('click', (e) => {
-    const dropdown = document.getElementById('menuDropdown');
-    if (!dropdown.contains(e.target)) {
-        dropdown.classList.remove('active');
-    }
-});
-
-// Music player functions
-function handleFileSelect(e) {
-    const files = Array.from(e.target.files);
-    addFilesToPlaylist(files);
-    e.target.value = '';
-}
-
-async function addFilesToPlaylist(files) {
-    const audioFiles = files.filter(file => 
-        file.type.startsWith('audio/') || 
-        file.name.match(/\.(mp3|wav|ogg|m4a)$/i)
-    );
-
-    for (const file of audioFiles) {
-        let songId = null;
-        if (dbAvailable) {
-            try {
-                songId = await saveSongToDB(file);
-            } catch (e) {
-                // Ignore save errors; keep in-memory only
-            }
-        }
-
-        const song = createSongFromFile(file, songId);
-        playlist.push(song);
-        loadSongDuration(song);
-    }
-
-    renderPlaylist();
-    ensureFirstSongSelected();
-}
-
-function renderPlaylist() {
-    if (playlist.length === 0) {
-        playlistContainer.innerHTML = '<div class="empty-playlist">Your playlist is empty. Add some music to get started!</div>';
-        return;
-    }
-
-    const playlistHTML = playlist.map((song, index) => `
-        <div class="playlist-item ${index === currentSongIndex ? 'active' : ''}" onclick="loadSong(${index})">
-            <div class="song-number">${index + 1}</div>
-            <div class="song-details">
-                <div class="song-name">${song.name}</div>
-                <div class="song-duration">${song.duration}</div>
-            </div>
-            <button class="remove-btn" onclick="removeSong(event, ${index})">×</button>
-        </div>
-    `).join('');
-
-    playlistContainer.innerHTML = playlistHTML;
-}
-
-function loadSong(index) {
-    if (index < 0 || index >= playlist.length) return;
-    
-    currentSongIndex = index;
-    const song = playlist[index];
-    
-    audioPlayer.src = song.url;
-    songTitle.textContent = song.name;
-    updateSongInfo();
-    updateTabTitle();
-    
-    renderPlaylist();
-    
-    if (isPlaying) {
-        audioPlayer.play();
-    }
-}
-
-function updateTabTitle() {
-    if (currentSongIndex !== -1 && playlist[currentSongIndex]) {
-        const song = playlist[currentSongIndex];
-        const playingStatus = isPlaying ? '▶️' : '⏸️';
-        document.title = `${playingStatus} ${song.name} - Music Player`;
-    } else {
-        document.title = '🎵 Music Player';
-    }
-}
-
-function togglePlay() {
-    if (playlist.length === 0) return;
-    
-    if (currentSongIndex === -1) {
-        loadSong(0);
-    }
-    
-    if (isPlaying) {
-        audioPlayer.pause();
-        playPauseBtn.textContent = '▶';
-        isPlaying = false;
-    } else {
-        audioPlayer.play();
-        playPauseBtn.textContent = '⏸';
-        isPlaying = true;
-    }
-    
-    updateTabTitle();
-}
-
-function toggleRepeat() {
-    isRepeating = !isRepeating;
-    repeatBtn.classList.toggle('active', isRepeating);
-    updateSongInfo();
-}
-
-function toggleShuffle() {
-    isShuffling = !isShuffling;
-    shuffleBtn.classList.toggle('active', isShuffling);
-    
-    if (isShuffling) {
-        // Reset play history and start playing from a random song
-        playHistory = [];
-        
-        if (playlist.length > 0) {
-            // Pick a random song (not the first one to make it feel shuffled)
-            const randomIndex = Math.floor(Math.random() * playlist.length);
-            playHistory.push(randomIndex);
-            loadSong(randomIndex);
-            
-            // Auto-play the song
-            audioPlayer.play();
-            playPauseBtn.textContent = '⏸';
-            isPlaying = true;
-        }
-    } else {
-        playHistory = [];
-    }
-    
-    updateSongInfo();
-}
-
-function getNextShuffleIndex() {
-    if (playlist.length <= 1) return 0;
-    
-    // Get list of unplayed songs
-    const unplayedIndices = [];
-    for (let i = 0; i < playlist.length; i++) {
-        if (!playHistory.includes(i)) {
-            unplayedIndices.push(i);
-        }
-    }
-    
-    // If all songs have been played, reset history but keep current song
-    if (unplayedIndices.length === 0) {
-        playHistory = [currentSongIndex];
-        // Rebuild unplayed list
-        for (let i = 0; i < playlist.length; i++) {
-            if (i !== currentSongIndex) {
-                unplayedIndices.push(i);
-            }
-        }
-    }
-    
-    // Pick random unplayed song
-    const randomIndex = Math.floor(Math.random() * unplayedIndices.length);
-    const nextIndex = unplayedIndices[randomIndex];
-    
-    playHistory.push(nextIndex);
-    return nextIndex;
-}
-
-function handleSongEnd() {
-    if (isRepeating) {
-        // Restart the same song
-        audioPlayer.currentTime = 0;
-        audioPlayer.play();
-    } else {
-        // Go to next song
-        nextSong();
-    }
-}
-
-function previousSong() {
-    if (playlist.length === 0) return;
-    
-    if (isShuffling && playHistory.length > 1) {
-        // Go to previous song in shuffle history
-        playHistory.pop(); // Remove current song
-        const prevIndex = playHistory[playHistory.length - 1];
-        loadSong(prevIndex);
-    } else {
-        // Normal previous behavior
-        const newIndex = currentSongIndex > 0 ? currentSongIndex - 1 : playlist.length - 1;
-        loadSong(newIndex);
-    }
-}
-
-function nextSong() {
-    if (playlist.length === 0) return;
-    
-    let newIndex;
-    if (isShuffling) {
-        newIndex = getNextShuffleIndex();
-    } else {
-        newIndex = currentSongIndex < playlist.length - 1 ? currentSongIndex + 1 : 0;
-    }
-    
-    loadSong(newIndex);
-}
-
-function rewind15() {
-    audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - 15);
-}
-
-function forward15() {
-    audioPlayer.currentTime = Math.min(audioPlayer.duration, audioPlayer.currentTime + 15);
-}
-
-function seekTo(e) {
-    const rect = progressBar.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    audioPlayer.currentTime = percent * audioPlayer.duration;
-}
-
-function updateProgress() {
-    if (audioPlayer.duration) {
-        const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-        progressFill.style.width = percent + '%';
-        currentTime.textContent = formatTime(audioPlayer.currentTime);
-    }
-}
-
-function updateSongInfo() {
-    if (currentSongIndex !== -1) {
-        const modes = [];
-        if (isRepeating) modes.push('Repeating');
-        if (isShuffling) modes.push('Shuffling');
-        const modeText = modes.length > 0 ? ' • ' + modes.join(' • ') : '';
-        songInfo.textContent = `Track ${currentSongIndex + 1} of ${playlist.length}${modeText}`;
-    }
-    
-    if (audioPlayer.duration) {
-        totalTime.textContent = formatTime(audioPlayer.duration);
-    }
-}
-
-function removeSong(event, index) {
-    event.stopPropagation();
-    
-    // Revoke object URL to free memory
-    URL.revokeObjectURL(playlist[index].url);
-
-    if (dbAvailable && playlist[index].id != null) {
-        deleteSongFromDB(playlist[index].id);
-    }
-    
-    playlist.splice(index, 1);
-    
-    // Update play history for shuffle
-    playHistory = playHistory.filter(i => i !== index).map(i => i > index ? i - 1 : i);
-    
-    if (index === currentSongIndex) {
-        if (playlist.length === 0) {
-            currentSongIndex = -1;
-            audioPlayer.src = '';
-            songTitle.textContent = 'No song selected';
-            songInfo.textContent = 'Select a song to start playing';
-            playPauseBtn.textContent = '▶';
-            isPlaying = false;
-            playHistory = [];
-            updateTabTitle();
-        } else {
-            const newIndex = index >= playlist.length ? 0 : index;
-            currentSongIndex = newIndex - 1;
-            loadSong(newIndex);
-        }
-    } else if (index < currentSongIndex) {
-        currentSongIndex--;
-    }
-    
-    renderPlaylist();
-}
-
-function openClearConfirm() {
-    clearModalOverlay.classList.add('active');
-}
-
-function closeClearConfirm() {
-    clearModalOverlay.classList.remove('active');
-}
-
-function openUpdateLog() {
-    updateModalOverlay.classList.add('active');
-    const dropdown = document.getElementById('menuDropdown');
-    if (dropdown) {
-        dropdown.classList.remove('active');
-    }
-}
-
-function closeUpdateLog() {
-    updateModalOverlay.classList.remove('active');
-}
-
-function maybeShowUpdateLogForUploads() {
-    const seenKey = `updateLogSeen:${UPDATE_LOG.uploadsKey}`;
-    if (localStorage.getItem(seenKey) !== UPDATE_LOG.version) {
-        openUpdateLog();
-        localStorage.setItem(seenKey, UPDATE_LOG.version);
-    }
-}
-
-async function confirmClearSongs() {
-    closeClearConfirm();
-    await clearAllSongs();
-}
-
-async function clearAllSongs() {
-    if (isPlaying) {
-        audioPlayer.pause();
-    }
-
-    for (const song of playlist) {
-        URL.revokeObjectURL(song.url);
-    }
-
-    playlist = [];
-    currentSongIndex = -1;
-    isPlaying = false;
-    playHistory = [];
-
-    audioPlayer.src = '';
-    songTitle.textContent = 'No song selected';
-    songInfo.textContent = 'Select a song to start playing';
-    playPauseBtn.textContent = '▶';
-    progressFill.style.width = '0%';
-    currentTime.textContent = '0:00';
-    totalTime.textContent = '0:00';
-
-    renderPlaylist();
-    updateTabTitle();
-
-    if (dbAvailable) {
-        await clearSongsFromDB();
-    }
-}
-
-function toggleTheme() {
-    const body = document.body;
-    const themeToggle = document.querySelector('.theme-toggle');
-    
-    isDark = !isDark;
-    
-    if (isDark) {
-        body.setAttribute('data-theme', 'dark');
-        themeToggle.textContent = '☀️ Light Mode';
-    } else {
-        body.setAttribute('data-theme', 'light');
-        themeToggle.textContent = '🌙 Dark Mode';
-    }
-}
-
-function formatTime(seconds) {
-    if (isNaN(seconds)) return '0:00';
-    
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-function ensureFirstSongSelected() {
-    if (currentSongIndex === -1 && playlist.length > 0) {
-        loadSong(0);
-    }
-}
-
-function createSongFromFile(file, id) {
-    const url = URL.createObjectURL(file);
-    return {
-        id: id,
-        name: file.name.replace(/\.(mp3|wav|ogg|m4a)$/i, ''),
-        url: url,
-        file: file,
-        duration: '0:00'
-    };
-}
-
-function loadSongDuration(song) {
-    const tempAudio = new Audio(song.url);
-    tempAudio.addEventListener('loadedmetadata', () => {
-        song.duration = formatTime(tempAudio.duration);
-        renderPlaylist();
-    });
-}
-
-function initIndexedDB() {
-    if (!('indexedDB' in window)) {
-        dbAvailable = false;
-        return Promise.resolve(null);
-    }
-
-    dbAvailable = true;
-    dbPromise = new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-        request.onupgradeneeded = () => {
-            const db = request.result;
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-                const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-                store.createIndex('addedAt', 'addedAt', { unique: false });
-            }
-        };
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
-
-    return dbPromise;
-}
-
-async function saveSongToDB(file) {
-    if (!dbPromise) return null;
-    const db = await dbPromise;
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readwrite');
-        const store = tx.objectStore(STORE_NAME);
-        const record = {
-            name: file.name.replace(/\.(mp3|wav|ogg|m4a)$/i, ''),
-            fileName: file.name,
-            type: file.type,
-            size: file.size,
-            lastModified: file.lastModified,
-            blob: file,
-            addedAt: Date.now()
-        };
-        const req = store.add(record);
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-    });
-}
-
-async function deleteSongFromDB(id) {
-    if (!dbPromise) return;
-    const db = await dbPromise;
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    tx.objectStore(STORE_NAME).delete(id);
-}
-
-async function clearSongsFromDB() {
-    if (!dbPromise) return;
-    const db = await dbPromise;
-    return new Promise((resolve) => {
-        const tx = db.transaction(STORE_NAME, 'readwrite');
-        const store = tx.objectStore(STORE_NAME);
-        const req = store.clear();
-        req.onsuccess = () => resolve();
-        req.onerror = () => resolve();
-    });
-}
-
-async function loadSongsFromDB() {
-    if (!dbPromise) return;
-    const db = await dbPromise;
-    return new Promise((resolve) => {
-        const tx = db.transaction(STORE_NAME, 'readonly');
-        const store = tx.objectStore(STORE_NAME);
-        const req = store.getAll();
-        req.onsuccess = () => {
-            const records = req.result || [];
-            records.sort((a, b) => a.addedAt - b.addedAt);
-            for (const record of records) {
-                let file;
-                try {
-                    file = new File([record.blob], record.fileName, {
-                        type: record.type,
-                        lastModified: record.lastModified
-                    });
-                } catch (e) {
-                    file = record.blob;
-                    try {
-                        file.name = record.fileName;
-                        file.lastModified = record.lastModified;
-                    } catch (err) {
-                        // Ignore if read-only
-                    }
-                }
-                const song = createSongFromFile(file, record.id);
-                playlist.push(song);
-                loadSongDuration(song);
-            }
-            renderPlaylist();
-            ensureFirstSongSelected();
-            resolve();
-        };
-        req.onerror = () => resolve();
-    });
-}
-
-// Enhanced keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-    // Don't trigger shortcuts when typing in input fields
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.contentEditable === 'true') return;
-    
-    switch(e.code) {
-        case 'Space':
-            e.preventDefault();
-            e.stopPropagation();
-            togglePlay();
-            break;
-        case 'Escape':
-            if (clearModalOverlay.classList.contains('active')) {
-                e.preventDefault();
-                closeClearConfirm();
-            }
-            break;
-        case 'ArrowLeft':
-            e.preventDefault();
-            rewind15();
-            break;
-        case 'ArrowRight':
-            e.preventDefault();
-            forward15();
-            break;
-        case 'ArrowUp':
-            e.preventDefault();
-            previousSong();
-            break;
-        case 'ArrowDown':
-            e.preventDefault();
-            nextSong();
-            break;
-        case 'KeyR':
-            e.preventDefault();
-            toggleRepeat();
-            break;
-        case 'KeyS':
-            e.preventDefault();
-            toggleShuffle();
-            break;
-    }
-});
-
-// Prevent space bar scrolling on keyup
-document.addEventListener('keyup', (e) => {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.contentEditable === 'true') return;
-    
-    if (e.code === 'Space') {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-});
-
-// Initialize tab title
-updateTabTitle();
-    </script>
+    <div class="site-version" data-site-version></div>
+    <script src="themes.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
