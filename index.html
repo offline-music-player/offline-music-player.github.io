@@ -1,12 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-mode="dark" data-theme="classic">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎵 Music Player</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YSG0B82WE6"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-YSG0B82WE6', {
+            page_path: location.pathname,
+            page_title: document.title,
+            page_referrer: document.referrer || undefined
+        });
+    </script>
 </head>
-<body data-theme="dark">
+<body>
     <!-- Warning Bar (Top of Site) -->
     <div class="warning-bar" style="display: none;">
         <div class="warning-bar-content">
@@ -15,7 +27,7 @@
     </div>
 
     <!-- Update Log Modal -->
-    <div class="update-log" style="display: none;">
+    <div class="update-log" style="display: none;" data-update-log-key="update_log_seen">
         <div class="update-log-content">
             <div class="update-log-header">
                 <h2 data-update-log-title>Update Log</h2>
@@ -27,7 +39,11 @@
                     <span class="update-log-version" data-update-log-version>Feb 20, 2026</span>
                 </div>
                 <ul class="update-log-list" data-update-log-items>
-                    <li>Updates coming soon: Search for a song and play it directly from your playlist. </li>
+                    <li>Mini-player upgrade</li>
+                    <li>Themes</li>
+                    <li>Bug fixes</li>
+                    <li>Upcoming Updates: Search for a song and play it directly from your playlist, Add a song to the playlist by searching for it.</li>
+                    <li>Upcoming Updates: Improved performance and stability for Windows users</li>
                 </ul>
             </div>
             <div class="update-log-footer">
@@ -40,6 +56,13 @@
         <div class="header">
             <h1 class="title">🎵 Music Player</h1>
             <div class="header-controls">
+                <select class="theme-select" id="themeSelect" aria-label="Theme">
+                    <option value="classic">Classic</option>
+                    <option value="synthwave">Retro Synthwave</option>
+                    <option value="glass">Glassmorphism Frost</option>
+                    <option value="forest">Forest</option>
+                    <option value="cyberpunk">Cyberpunk</option>
+                </select>
                 <button class="theme-toggle" onclick="toggleTheme()">☀️ Light Mode</button>
                 <div class="dropdown" id="menuDropdown">
                     <button class="dropdown-btn" onclick="toggleDropdown()">
@@ -85,6 +108,8 @@
                     <div class="song-info" id="songInfo">Select a song to start playing</div>
                 </div>
 
+                <img id="albumArt" class="album-art" alt="" hidden>
+
                 <div class="controls">
                     <button class="control-btn" onclick="previousSong()">⏮</button>
                     <button class="control-btn" onclick="rewind15()">⏪</button>
@@ -116,6 +141,16 @@
                     <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50">
                     <span>🔊</span>
                 </div>
+
+                <div class="pip-utility" aria-hidden="true">
+                    <canvas id="pipVisualizer" width="260" height="48"></canvas>
+                    <div class="pip-queue">
+                        <div class="pip-queue-label">Up Next</div>
+                        <div class="pip-queue-ticker">
+                            <span id="pipQueueText">No tracks queued</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="playlist">
@@ -142,6 +177,7 @@
 
     <audio id="audioPlayer" preload="metadata"></audio>
     <div class="site-version" data-site-version></div>
+    <script src="themes.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
