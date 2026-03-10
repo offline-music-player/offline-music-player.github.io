@@ -38,7 +38,7 @@ const UPDATE_LOG_CONFIG = {
     ]
 };
 
-const SITE_VERSION = 'v1.1.2';
+const SITE_VERSION = 'v1.3.1';
 const SETTINGS_DB_NAME = 'offlineMusicPlayerSettings';
 const SETTINGS_DB_VERSION = 1;
 const SETTINGS_STORE = 'settings';

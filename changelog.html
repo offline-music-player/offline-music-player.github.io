@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark" data-theme="classic">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changelog</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">📝 Changelog</h1>
+            <div class="header-controls">
+                <select class="theme-select" id="themeSelect" aria-label="Theme">
+                    <option value="classic">Classic</option>
+                    <option value="synthwave">Retro Synthwave</option>
+                    <option value="glass">Glassmorphism Frost</option>
+                    <option value="forest">Forest</option>
+                    <option value="cyberpunk">Cyberpunk</option>
+                </select>
+                <button class="theme-toggle" onclick="toggleTheme()">☀️ Light Mode</button>
+                <div class="dropdown" id="menuDropdown">
+                    <button class="dropdown-btn" onclick="toggleDropdown()">☰ Menu</button>
+                    <div class="dropdown-content">
+                        <a href="index.html" class="dropdown-item">
+                            <span>🎵</span>
+                            <span>Back to Player</span>
+                        </a>
+                        <a href="features.html" class="dropdown-item">
+                            <span>🎯</span>
+                            <span>Features</span>
+                        </a>
+                        <a href="admin.html" class="dropdown-item">
+                            <span>⚙️</span>
+                            <span>Admin</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="changelog-list" id="changelogList">
+            <div class="changelog-entry">
+                <div class="changelog-meta">
+                    <span class="changelog-version">v1.3.1</span>
+                    <span class="changelog-date">Mar 10, 2026</span>
+                </div>
+                <ul class="changelog-items">
+                    <li>Added theme dropdown</li>
+                    <li>Improved Mini-Player (PiP)</li>
+                    <li>Added Change Log</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="themes.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
