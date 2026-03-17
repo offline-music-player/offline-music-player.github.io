@@ -13,6 +13,10 @@ let visualizerRaf = null;
 let visualizerActive = false;
 let pipAutoOpened = false;
 let pipUserClosed = false;
+let pipManualOpened = false;
+let pipContentClone = null;
+let pipCloneObserver = null;
+let pipCloneSyncQueued = false;
 let updateLogSignature = '';
 
 // ============================================
@@ -30,15 +34,23 @@ const WARNING_CONFIG = {
 // ============================================
 const UPDATE_LOG_CONFIG = {
     enabled: true,
-    version: 'Feb 11, 2026',
-    displayDate: 'Feb 11, 2026',
-    title: 'Updates in Progress',
+    version: 'Mar 17, 2026',
+    displayDate: 'Mar 17, 2026',
+    title: 'Latest Updates',
     items: [
-        'Updates coming soon: Search for a song and play it directly from your playlist. '
+        'PiP now auto-opens when the tab is hidden and closes when visible again (auto mode).',
+        'Manual PiP toggle keeps the main tab visible while PiP stays open.',
+        'PiP controls now sync with the main player (playback, volume, seek, playlist).',
+        'Theme refresh: Forest greener, Glass more frosted/blue, Cyberpunk hacker neon green.',
+        'Button styling unified per theme; control buttons are neutral until hover/active.',
+        'In-page confirmation added for downloading the offline player.',
+        'Upcoming Updates: Search for a song and play it directly from your playlist, Add a song to the playlist by searching for it.',
+        'Upcoming Updates: Improved performance and stability for Windows users.',
+        'Upcoming Updates: .flac file support'
     ]
 };
 
-const SITE_VERSION = 'v1.3.2';
+const SITE_VERSION = 'v1.3.3';
 const SETTINGS_DB_NAME = 'offlineMusicPlayerSettings';
 const SETTINGS_DB_VERSION = 1;
 const SETTINGS_STORE = 'settings';
@@ -64,8 +76,7 @@ let settingsDbPromise = null;
             <div class="warning-popup-body">
                 <p><strong>Currently Experiencing Issues:</strong></p>
                 <ul>
-                    <li>Spotify integration - Authentication in progress</li>
-                    <li>Feature streaming - Under development</li>
+                    <li>Some optional features are under development</li>
                 </ul>
                 <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-secondary);">
                     The core music player functionality (uploading and playing local files) is working normally.
@@ -80,16 +91,6 @@ let settingsDbPromise = null;
 Then add at the end of your HTML file (before </body>):
     <script src="script.js"></script>
 */
-// Streaming Support Configuration
-const STREAMING_CONFIG = {
-    spotify: {
-        enabled: true,
-        clientId: '', // Get from Spotify Developer Dashboard
-        clientSecret: '', // Get from Spotify Developer Dashboard
-        redirectUri: 'http://localhost:3000/callback' // Set in Spotify app settings
-    }
-};
-
 // DOM elements
 const audioPlayer = document.getElementById('audioPlayer');
 const playPauseBtn = document.getElementById('playPauseBtn');
@@ -111,9 +112,13 @@ const pipAnchor = document.getElementById('pipAnchor');
 const clearModalOverlay = document.getElementById('clearModalOverlay');
 const clearModalConfirmBtn = document.getElementById('clearModalConfirmBtn');
 const clearModalCancelBtn = document.getElementById('clearModalCancelBtn');
+const downloadModalOverlay = document.getElementById('downloadModalOverlay');
+const downloadModalConfirmBtn = document.getElementById('downloadModalConfirmBtn');
+const downloadModalCancelBtn = document.getElementById('downloadModalCancelBtn');
 const pipVisualizer = document.getElementById('pipVisualizer');
 const pipQueueText = document.getElementById('pipQueueText');
 const themeSelect = document.getElementById('themeSelect');
+const pipBtn = document.getElementById('pipBtn');
 
 const PIP_DIMENSIONS = { width: 300, height: 350 };
 let pipWindow = null;
@@ -158,6 +163,7 @@ if (audioPlayer) {
     });
 
     setupPiPBehavior();
+    initializePiPButton();
 }
 
 if (window.ThemeEngine) {
@@ -225,13 +231,13 @@ function renderPlaylist() {
     }
 
     const playlistHTML = playlist.map((song, index) => `
-        <div class="playlist-item ${index === currentSongIndex ? 'active' : ''}" onclick="loadSong(${index})">
+        <div class="playlist-item ${index === currentSongIndex ? 'active' : ''}" data-index="${index}" onclick="loadSong(${index})">
             <div class="song-number">${index + 1}</div>
             <div class="song-details">
                 <div class="song-name">${song.name}</div>
                 <div class="song-duration">${song.duration}</div>
             </div>
-            <button class="remove-btn" onclick="removeSong(event, ${index})">×</button>
+            <button class="remove-btn" data-index="${index}" onclick="removeSong(event, ${index})">×</button>
         </div>
     `).join('');
 
@@ -537,12 +543,142 @@ updateTabTitle();
 // PICTURE-IN-PICTURE (MINI PLAYER)
 // ============================================
 
+function initializePiPButton() {
+    if (!pipBtn) return;
+    const supported = 'documentPictureInPicture' in window && documentPictureInPicture.requestWindow;
+    if (!supported) {
+        pipBtn.disabled = true;
+        pipBtn.title = 'PiP not supported in this browser';
+    }
+    updatePiPButtonState(Boolean(pipWindow));
+}
+
+function updatePiPButtonState(isOpen) {
+    const buttons = [];
+    if (pipBtn) buttons.push(pipBtn);
+    if (pipContentClone) {
+        const cloneBtn = pipContentClone.querySelector('#pipBtn');
+        if (cloneBtn && cloneBtn !== pipBtn) buttons.push(cloneBtn);
+    }
+    buttons.forEach((btn) => {
+        btn.classList.toggle('active', isOpen);
+        btn.setAttribute('aria-pressed', isOpen ? 'true' : 'false');
+    });
+}
+
+function togglePiP() {
+    if (pipWindow) {
+        closePiPWindow({ reason: 'manual' });
+        return;
+    }
+    openPiPWindow({ reason: 'manual' });
+}
+
+function schedulePiPCloneSync() {
+    if (!pipContentClone || !pipWindow) return;
+    if (pipCloneSyncQueued) return;
+    pipCloneSyncQueued = true;
+    requestAnimationFrame(() => {
+        pipCloneSyncQueued = false;
+        syncPiPClone();
+    });
+}
+
+function syncPiPClone() {
+    if (!pipContentClone || !pipWindow) return;
+    pipContentClone.innerHTML = pipContent.innerHTML;
+    bindPiPCloneInputs();
+    updatePiPButtonState(true);
+}
+
+function bindPiPCloneInputs() {
+    if (!pipWindow || !pipWindow.document) return;
+    const pipVolumeSlider = pipWindow.document.getElementById('volumeSlider');
+    if (pipVolumeSlider) {
+        if (volumeSlider) {
+            pipVolumeSlider.value = volumeSlider.value;
+        }
+        pipVolumeSlider.oninput = (e) => {
+            audioPlayer.volume = e.target.value / 100;
+        };
+    }
+
+    const pipFileInput = pipWindow.document.getElementById('fileInput');
+    if (pipFileInput) {
+        pipFileInput.onchange = (e) => handleFileSelect(e);
+    }
+
+    const pipProgressBar = pipWindow.document.getElementById('progressBar');
+    if (pipProgressBar) {
+        pipProgressBar.onclick = (e) => seekTo(e);
+    }
+
+    const actionMap = [
+        ['#playPauseBtn', togglePlay],
+        ['#repeatBtn', toggleRepeat],
+        ['#shuffleBtn', toggleShuffle],
+        ['#pipBtn', togglePiP],
+        ['#clearModalCancelBtn', closeClearConfirm],
+        ['#clearModalConfirmBtn', confirmClearSongs],
+        ['.update-log-close', closeUpdateLog],
+        ['.update-log-btn', closeUpdateLog]
+    ];
+
+    actionMap.forEach(([selector, handler]) => {
+        pipWindow.document.querySelectorAll(selector).forEach((el) => {
+            el.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handler(e);
+            };
+        });
+    });
+
+    const controlActions = [
+        ['[data-action="prev"]', previousSong],
+        ['[data-action="rewind"]', rewind15],
+        ['[data-action="forward"]', forward15],
+        ['[data-action="next"]', nextSong]
+    ];
+    controlActions.forEach(([selector, handler]) => {
+        pipWindow.document.querySelectorAll(selector).forEach((el) => {
+            el.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handler();
+            };
+        });
+    });
+
+    pipWindow.document.querySelectorAll('.playlist-item').forEach((item) => {
+        const index = Number(item.getAttribute('data-index'));
+        if (!Number.isNaN(index)) {
+            item.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                loadSong(index);
+            };
+        }
+    });
+
+    pipWindow.document.querySelectorAll('.remove-btn').forEach((btn) => {
+        const index = Number(btn.getAttribute('data-index'));
+        if (!Number.isNaN(index)) {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                removeSong(e, index);
+            };
+        }
+    });
+}
+
 function setupPiPBehavior() {
     if (!pipContent || !pipAnchor) return;
 
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
-            if (!pipWindow && !pipUserClosed && !audioPlayer.paused) {
+            if (!pipWindow) {
                 openPiPWindow({ reason: 'visibility' });
             }
         } else if (pipWindow && pipAutoOpened) {
@@ -561,6 +697,7 @@ function setupPiPBehavior() {
 async function openPiPWindow({ reason } = {}) {
     if (pipWindow || pipOpening || !pipContent || !pipAnchor) return;
     pipOpening = true;
+    pipManualOpened = reason === 'manual';
 
     try {
         if (!('documentPictureInPicture' in window) || !documentPictureInPicture.requestWindow) {
@@ -601,6 +738,7 @@ function setupPiPWindow(pip) {
     pipWindow.seekTo = seekTo;
     pipWindow.loadSong = loadSong;
     pipWindow.removeSong = removeSong;
+    pipWindow.togglePiP = togglePiP;
 
     const baseTag = pipWindow.document.createElement('base');
     baseTag.href = document.baseURI;
@@ -608,6 +746,9 @@ function setupPiPWindow(pip) {
 
     document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
         pipWindow.document.head.appendChild(link.cloneNode(true));
+    });
+    document.querySelectorAll('style').forEach((styleTag) => {
+        pipWindow.document.head.appendChild(styleTag.cloneNode(true));
     });
 
     const pipStyle = pipWindow.document.createElement('style');
@@ -618,11 +759,28 @@ function setupPiPWindow(pip) {
     pipWindow.document.documentElement.classList.add('pip-mode');
     pipWindow.document.body.classList.add('pip-mode');
     syncPiPTheme();
-    pipWindow.document.body.appendChild(pipContent);
+    const contentForPiP = pipManualOpened ? pipContent.cloneNode(true) : pipContent;
+    if (pipManualOpened) {
+        pipContentClone = contentForPiP;
+        if (pipCloneObserver) pipCloneObserver.disconnect();
+        pipCloneObserver = new MutationObserver(schedulePiPCloneSync);
+        pipCloneObserver.observe(pipContent, { subtree: true, childList: true, attributes: true, characterData: true });
+    } else {
+        pipContentClone = null;
+        if (pipCloneObserver) {
+            pipCloneObserver.disconnect();
+            pipCloneObserver = null;
+        }
+    }
+    pipWindow.document.body.appendChild(contentForPiP);
+    if (pipManualOpened) {
+        syncPiPClone();
+    }
     ensureAudioContext();
     resizeVisualizer();
     setTimeout(resizeVisualizer, 60);
     startVisualizer();
+    updatePiPButtonState(true);
 
     pipWindow.addEventListener('pagehide', restorePiPContent);
     pipWindow.addEventListener('beforeunload', restorePiPContent);
@@ -680,11 +838,24 @@ function syncPiPTheme() {
 }
 
 function restorePiPContent() {
-    if (!pipContent || !pipAnchor || pipContent.ownerDocument === document) return;
+    if (!pipContent || !pipAnchor) return;
     detachPiPShortcuts();
-    pipAnchor.parentElement.insertBefore(pipContent, pipAnchor);
+    if (pipContentClone) {
+        if (pipContentClone.parentElement) {
+            pipContentClone.parentElement.removeChild(pipContentClone);
+        }
+        pipContentClone = null;
+        if (pipCloneObserver) {
+            pipCloneObserver.disconnect();
+            pipCloneObserver = null;
+        }
+    } else if (pipContent.ownerDocument !== document) {
+        pipAnchor.parentElement.insertBefore(pipContent, pipAnchor);
+    }
     pipWindow = null;
+    pipManualOpened = false;
     stopVisualizer();
+    updatePiPButtonState(false);
 }
 
 function closePiPWindow({ reason } = {}) {
@@ -942,6 +1113,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    if (downloadModalConfirmBtn) {
+        downloadModalConfirmBtn.addEventListener('click', confirmDownload);
+    }
+    if (downloadModalCancelBtn) {
+        downloadModalCancelBtn.addEventListener('click', closeDownloadConfirm);
+    }
+    if (downloadModalOverlay) {
+        downloadModalOverlay.addEventListener('click', (e) => {
+            if (e.target === downloadModalOverlay) {
+                closeDownloadConfirm();
+            }
+        });
+    }
 
     if (themeSelect) {
         const savedTheme = localStorage.getItem('ui-theme') || document.documentElement.getAttribute('data-theme') || 'classic';
@@ -1002,6 +1186,47 @@ function showWarningPopup() {
     if (popup) {
         popup.style.display = 'flex';
     }
+}
+
+// ============================================
+// DOWNLOAD CONFIRMATION
+// ============================================
+let pendingDownloadHref = '';
+
+function openDownloadConfirm(event) {
+    if (event) {
+        event.preventDefault();
+    }
+    const trigger = event && event.currentTarget;
+    pendingDownloadHref = trigger && trigger.dataset ? trigger.dataset.downloadHref : 'offline-music-player.html';
+    if (downloadModalOverlay) {
+        downloadModalOverlay.hidden = false;
+        downloadModalOverlay.setAttribute('aria-hidden', 'false');
+        downloadModalOverlay.classList.add('active');
+    }
+}
+
+function closeDownloadConfirm() {
+    if (downloadModalOverlay) {
+        downloadModalOverlay.classList.remove('active');
+        downloadModalOverlay.hidden = true;
+        downloadModalOverlay.setAttribute('aria-hidden', 'true');
+    }
+    pendingDownloadHref = '';
+}
+
+function confirmDownload() {
+    if (!pendingDownloadHref) {
+        closeDownloadConfirm();
+        return;
+    }
+    const link = document.createElement('a');
+    link.href = pendingDownloadHref;
+    link.download = '';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    closeDownloadConfirm();
 }
 
 /**
@@ -1115,158 +1340,6 @@ function applyDynamicThemeFromArt() {
     if (!window.ThemeEngine || !albumArt) return;
     if (albumArt.src) {
         window.ThemeEngine.applyVibrantFromImage(albumArt);
-    }
-}
-
-// ============================================
-// STREAMING SUPPORT MODULE
-// ============================================
-
-/**
- * Check if URL is a Spotify link
- * @param {string} url - The URL to check
- * @returns {object|null} - {type: 'spotify', trackId: id} or null
- */
-function detectStreamingLink(url) {
-    // Spotify URL patterns
-    const spotifyPatterns = [
-        /(?:https?:\/\/)?(?:www\.)?open\.spotify\.com\/track\/([a-zA-Z0-9]+)/,
-        /spotify:track:([a-zA-Z0-9]+)/
-    ];
-    
-    for (let pattern of spotifyPatterns) {
-        const match = url.match(pattern);
-        if (match) {
-            return { type: 'spotify', trackId: match[1], url: url };
-        }
-    }
-    
-    return null;
-}
-
-/**
- * Get Spotify Access Token
- * @returns {Promise<string>} - Access token for Spotify API
- */
-async function getSpotifyAccessToken() {
-    try {
-        if (!STREAMING_CONFIG.spotify.clientId || !STREAMING_CONFIG.spotify.clientSecret) {
-            throw new Error('Spotify credentials not configured. Please set Client ID and Secret in script.js');
-        }
-
-        const credentials = btoa(`${STREAMING_CONFIG.spotify.clientId}:${STREAMING_CONFIG.spotify.clientSecret}`);
-        
-        const response = await fetch('https://accounts.spotify.com/api/token', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Basic ${credentials}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: 'grant_type=client_credentials'
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to authenticate with Spotify');
-        }
-
-        const data = await response.json();
-        return data.access_token;
-
-    } catch (error) {
-        console.error('Spotify auth error:', error);
-        throw error;
-    }
-}
-
-/**
- * Fetch track info from Spotify and get preview URL
- * @param {string} trackId - Spotify track ID
- * @returns {Promise<object>} - {url: previewUrl, name: trackName, artist: artistName}
- */
-async function fetchSpotifyTrack(trackId) {
-    try {
-        const accessToken = await getSpotifyAccessToken();
-        
-        const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Track not found or not available');
-        }
-
-        const data = await response.json();
-
-        if (!data.preview_url) {
-            throw new Error('No preview available for this track. Premium Spotify account needed to stream full tracks.');
-        }
-
-        return {
-            url: data.preview_url,
-            name: data.name,
-            artist: data.artists[0]?.name || 'Unknown Artist',
-            duration: Math.floor(data.duration_ms / 1000)
-        };
-
-    } catch (error) {
-        console.error('Spotify fetch error:', error);
-        throw error;
-    }
-}
-
-/**
- * Add Spotify track to playlist
- * @param {string} url - Spotify track URL or URI
- */
-async function addStreamingLink(url) {
-    const streamInfo = detectStreamingLink(url);
-    
-    if (!streamInfo) {
-        alert('Please enter a valid Spotify track URL\n\nExample: https://open.spotify.com/track/...');
-        return;
-    }
-    
-    // Show loading indicator
-    const loadingDiv = document.createElement('div');
-    loadingDiv.textContent = '🔄 Loading from Spotify...';
-    loadingDiv.style.textAlign = 'center';
-    loadingDiv.style.padding = '20px';
-    loadingDiv.style.color = 'var(--accent)';
-    playlistContainer.innerHTML = '';
-    playlistContainer.appendChild(loadingDiv);
-    
-    try {
-        const trackData = await fetchSpotifyTrack(streamInfo.trackId);
-        
-        // Add to playlist
-        const song = {
-            name: `${trackData.name} - ${trackData.artist}`,
-            url: trackData.url,
-            duration: formatTime(trackData.duration),
-            isStream: true,
-            sourceUrl: url
-        };
-        
-        playlist.push(song);
-        
-        // Load metadata
-        const tempAudio = new Audio(trackData.url);
-        tempAudio.addEventListener('loadedmetadata', () => {
-            song.duration = formatTime(tempAudio.duration);
-            renderPlaylist();
-        });
-        
-        renderPlaylist();
-        
-        if (currentSongIndex === -1 && playlist.length > 0) {
-            loadSong(0);
-        }
-        
-    } catch (error) {
-        alert('Error: ' + error.message);
-        renderPlaylist();
     }
 }
 

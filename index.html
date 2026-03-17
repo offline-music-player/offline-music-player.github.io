@@ -36,17 +36,19 @@
             <div class="update-log-body">
                 <div class="update-log-meta">
                     <span class="update-log-label">Latest update:</span>
-                    <span class="update-log-version" data-update-log-version>Feb 20, 2026</span>
+                    <span class="update-log-version" data-update-log-version>Mar 17, 2026</span>
                 </div>
                 <ul class="update-log-list" data-update-log-items>
-                    <li>Mini-player upgrade</li>
-                    <li>Themes</li>
-                    <li>Bug fixes</li>
-                    <li>Updated Feature Request UI</li>
-                    <li>Added Feature Request Page (See Menu dropdown)</li>
+                    <li>PiP now auto-opens when the tab is hidden and closes when visible again (auto mode).</li>
+                    <li>Manual PiP toggle keeps the main tab visible while PiP stays open.</li>
+                    <li>PiP controls now sync with the main player (playback, volume, seek, playlist).</li>
+                    <li>Theme refresh: Forest greener, Glass more frosted/blue, Cyberpunk hacker neon green.</li>
+                    <li>Button styling unified per theme; control buttons are neutral until hover/active.</li>
+                    <li>In-page confirmation added for downloading the offline player.</li>
                     <li>Upcoming Updates: Search for a song and play it directly from your playlist, Add a song to the playlist by searching for it.</li>
-                    <li>Upcoming Updates: Improved performance and stability for Windows users</li>
-                    <li>For a more detailed list of changes, please visit the <a href="changelog.html" target="_blank">Change Log</a>.</li>
+                    <li>Upcoming Updates: Improved performance and stability for Windows users.</li>
+                    <li>Upcoming Updates: .flac file support</li>
+                    <li>For a more detailed list of changes, please visit the <a href="changelog.html" target="_blank">Change Log</a> through the menu dropdown at the top of the site.</li>
                 </ul>
             </div>
             <div class="update-log-footer">
@@ -105,7 +107,7 @@
                     <div class="upload-text">Drag & drop MP3 files here or</div>
                     <div class="upload-actions">
                         <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
-                        <a class="upload-btn" href="offline-music-player.html" download>Download Offline File</a>
+                        <a class="upload-btn" href="offline-music-player.html" download data-download-href="offline-music-player.html" onclick="openDownloadConfirm(event)">Download Offline File</a>
                         <button class="upload-btn clear-btn" onclick="openClearConfirm()">Clear Songs</button>
                         <input type="file" id="fileInput" class="file-input" accept=".mp3,.wav,.ogg,.m4a" multiple>
                     </div>
@@ -119,11 +121,11 @@
                 <img id="albumArt" class="album-art" alt="" hidden>
 
                 <div class="controls">
-                    <button class="control-btn" onclick="previousSong()">⏮</button>
-                    <button class="control-btn" onclick="rewind15()">⏪</button>
+                    <button class="control-btn" data-action="prev" onclick="previousSong()">⏮</button>
+                    <button class="control-btn" data-action="rewind" onclick="rewind15()">⏪</button>
                     <button class="control-btn play-pause-btn" id="playPauseBtn" onclick="togglePlay()">▶</button>
-                    <button class="control-btn" onclick="forward15()">⏩</button>
-                    <button class="control-btn" onclick="nextSong()">⏭</button>
+                    <button class="control-btn" data-action="forward" onclick="forward15()">⏩</button>
+                    <button class="control-btn" data-action="next" onclick="nextSong()">⏭</button>
                     <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()" title="Repeat current song">
                         🔁
                         <div class="repeat-indicator"></div>
@@ -132,6 +134,7 @@
                         🔀
                         <div class="repeat-indicator"></div>
                     </button>
+                    <button class="control-btn" id="pipBtn" onclick="togglePiP()" title="Open mini player" aria-pressed="false">🗔</button>
                 </div>
 
                 <div class="progress-container">
@@ -179,6 +182,17 @@
             <div class="modal-actions">
                 <button class="upload-btn btn-secondary" id="clearModalCancelBtn">Cancel</button>
                 <button class="upload-btn clear-btn" id="clearModalConfirmBtn">Clear Songs</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="downloadModalOverlay" role="dialog" aria-modal="true" aria-labelledby="downloadModalTitle" aria-describedby="downloadModalText" aria-hidden="true" hidden>
+        <div class="modal">
+            <div class="modal-title" id="downloadModalTitle">Download offline player?</div>
+            <div class="modal-text" id="downloadModalText">You are about to download the offline music player file.</div>
+            <div class="modal-actions">
+                <button class="upload-btn btn-secondary" id="downloadModalCancelBtn">Cancel</button>
+                <button class="upload-btn" id="downloadModalConfirmBtn">Download File</button>
             </div>
         </div>
     </div>

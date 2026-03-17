@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Changelog</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YSG0B82WE6"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-YSG0B82WE6', {
+            page_path: location.pathname,
+            page_title: document.title,
+            page_referrer: document.referrer || undefined
+        });
+    </script>
 </head>
 <body>
     <div class="container">
@@ -36,6 +48,30 @@
         </div>
 
         <div class="changelog-list" id="changelogList">
+            <div class="changelog-entry">
+                <div class="changelog-meta">
+                    <span class="changelog-version">1.3.4</span>
+                    <span class="changelog-date">Mar 17, 2026</span>
+                </div>
+                <ul class="changelog-items">
+                    <li>PiP now auto-opens when the tab is hidden and closes when visible again (auto mode).</li>
+                    <li>Manual PiP toggle keeps the main tab visible while PiP stays open.</li>
+                    <li>PiP controls now sync with the main player (playback, volume, seek, playlist).</li>
+                    <li>Theme refresh: Forest greener, Glass more frosted/blue, Cyberpunk hacker neon green.</li>
+                    <li>Button styling unified per theme; control buttons are neutral until hover/active.</li>
+                    <li>In-page confirmation added for downloading the offline player.</li>
+                </ul>
+            </div>
+            <div class="changelog-entry">
+                <div class="changelog-meta">
+                    <span class="changelog-version">1.3.3</span>
+                    <span class="changelog-date">Mar 12, 2026</span>
+                </div>
+                <ul class="changelog-items">
+                    <li>Integrated Google Analytics to all pages</li>
+                    <li>Integrated all pages to Neocities: https://www.offline-music-player.neocities.org</li>
+                </ul>
+            </div>
             <div class="changelog-entry">
                 <div class="changelog-meta">
                     <span class="changelog-version">1.3.2</span>
