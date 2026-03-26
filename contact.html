@@ -6,7 +6,6 @@
     <title>Contact Support</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/png" href="favicon.png">
-    <!-- Google Analytics (GA4) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YSG0B82WE6"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -24,47 +23,39 @@
             color: var(--text-primary);
             transition: background-color 0.3s, color 0.3s;
         }
-
         .ideas-wrapper {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             padding-top: 20px;
         }
-
         .home-btn {
             text-decoration: none;
         }
-
         .ideas-container {
             max-width: 600px;
             margin: 0 auto 40px;
             padding: 20px;
         }
-
         .ideas-header {
             text-align: center;
             margin-bottom: 10px;
         }
-
         .ideas-header h2 {
             font-size: 1.6em;
             margin-bottom: 10px;
             color: var(--text-primary);
         }
-
         .ideas-header p {
             color: var(--text-secondary);
             margin-top: 6px;
         }
-
         .ideas-description {
             text-align: center;
             color: var(--text-primary);
             margin-bottom: 30px;
             font-size: 1.1em;
         }
-
         .info-box {
             background-color: var(--bg-secondary);
             color: var(--text-primary);
@@ -75,16 +66,13 @@
             box-shadow: 0 8px 20px var(--shadow);
             transition: background-color 0.3s, color 0.3s;
         }
-
         .info-box strong {
             display: block;
             margin-bottom: 6px;
         }
-
         .form-group {
             margin-bottom: 20px;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 8px;
@@ -92,7 +80,6 @@
             color: var(--text-primary);
             transition: color 0.3s;
         }
-
         .form-group input,
         .form-group textarea {
             width: 100%;
@@ -106,23 +93,19 @@
             box-sizing: border-box;
             transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
-
         .form-group textarea {
             resize: vertical;
             min-height: 150px;
         }
-
         .form-group input:focus,
         .form-group textarea:focus {
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 5px rgba(220, 53, 69, 0.3);
         }
-
         .form-group .required {
             color: #e74c3c;
         }
-
         .submit-btn {
             background-color: var(--accent);
             color: white;
@@ -134,16 +117,13 @@
             width: 100%;
             transition: background-color 0.3s;
         }
-
         .submit-btn:hover {
             background-color: var(--accent-hover);
         }
-
         .submit-btn:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
         }
-
         .success-message {
             display: none;
             background-color: #d4edda;
@@ -153,7 +133,6 @@
             margin-bottom: 20px;
             text-align: center;
         }
-
         .error-message {
             display: none;
             background-color: #f8d7da;
@@ -163,7 +142,6 @@
             margin-bottom: 20px;
             text-align: center;
         }
-
         .loading {
             display: none;
             text-align: center;
@@ -186,9 +164,7 @@
                 </select>
                 <button class="theme-toggle" onclick="toggleTheme()">☀️ Light Mode</button>
                 <div class="dropdown" id="menuDropdown">
-                    <button class="dropdown-btn" onclick="toggleDropdown()">
-                        ☰ Menu
-                    </button>
+                    <button class="dropdown-btn" onclick="toggleDropdown()"> ☰ Menu</button>
                     <div class="dropdown-content">
                         <a href="/" class="dropdown-item">
                             <span>🎵</span>
@@ -208,87 +184,66 @@
                 </div>
             </div>
         </div>
-
         <div class="ideas-container">
             <div class="ideas-header">
                 <h2>Contact Support</h2>
                 <p>Tell us what’s going wrong and we’ll help you troubleshoot.</p>
             </div>
-        
         <div id="successMessage" class="success-message">
             Thanks for reaching out! We've sent you a confirmation email.
         </div>
-
         <div id="errorMessage" class="error-message">
             Something went wrong. Please try again.
         </div>
-
         <div id="loading" class="loading">
             Sending your idea...
         </div>
-
         <form id="ideasForm">
             <div class="form-group">
-                <label for="username">Name or Handle <span class="required">*</span></label>
-                <input type="text" id="username" name="username" placeholder="Your name or alias" required>
+                <label for="username">Name <span class="required">*</span></label>
+                <input type="text" id="username" name="username" placeholder="Your name (First Name)" required>
             </div>
-
             <div class="form-group">
                 <label for="email">Email <span class="required">*</span></label>
                 <input type="email" id="email" name="email" required>
             </div>
-
             <div class="form-group">
-                <label for="message">Support Request <span class="required">*</span></label>
-                <textarea id="message" name="message" placeholder="Example: Playback won’t start after I add files" required></textarea>
+                <label for="message">Bug / Feature Request <span class="required">*</span></label>
+                <textarea id="message" name="message" placeholder="Example: Playback won’t start after I add files " required></textarea>
             </div>
-
-            <div class="form-group">
-                <label for="context">Device / Browser Info (optional)</label>
-                <textarea id="context" name="context" placeholder="Example: Windows 11, Chrome 122, Bluetooth headphones"></textarea>
-            </div>
-
             <button type="submit" class="submit-btn" id="submitBtn">Send to Support</button>
         </form>
         </div>
     </div>
-
     <script>
         // Form Submission
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjQVQ09paB7ib90429AZeDrkuUl7yupSLcutifBJoK5pqN2OYpSuhXcYjyx4512PJpmA/exec'; // Replace with your Google Apps Script URL
-
         const form = document.getElementById('ideasForm');
         const submitBtn = document.getElementById('submitBtn');
         const successMessage = document.getElementById('successMessage');
         const errorMessage = document.getElementById('errorMessage');
         const loadingDiv = document.getElementById('loading');
-
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-
             const username = document.getElementById('username').value.trim();
             const email = document.getElementById('email').value.trim();
             const message = document.getElementById('message').value.trim();
             const context = document.getElementById('context').value.trim();
-
             if (!username || !email || !message) {
                 errorMessage.textContent = 'Please fill in all required fields.';
                 errorMessage.style.display = 'block';
                 successMessage.style.display = 'none';
                 return;
             }
-
             submitBtn.disabled = true;
             loadingDiv.style.display = 'block';
             successMessage.style.display = 'none';
             errorMessage.style.display = 'none';
-
             const formData = new FormData();
             formData.append('username', username);
             formData.append('email', email);
             formData.append('message', message);
             formData.append('context', context);
-
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 body: formData
@@ -296,7 +251,6 @@
             .then(response => {
                 loadingDiv.style.display = 'none';
                 submitBtn.disabled = false;
-
                 if (response.ok) {
                     successMessage.style.display = 'block';
                     form.reset();
