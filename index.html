@@ -32,14 +32,9 @@
                     <span class="update-log-version" data-update-log-version>Mar 17, 2026</span>
                 </div>
                 <ul class="update-log-list">
-                    <li>PiP now auto-opens when the tab is hidden and closes when visible again (auto mode).</li>
-                    <li>Manual PiP toggle keeps the main tab visible while PiP stays open.</li>
-                    <li>PiP controls now sync with the main player (playback, volume, seek, playlist).</li>
-                    <li>Theme refresh: Forest greener, Glass more frosted/blue, Cyberpunk hacker neon green.</li>
-                    <li>Button styling unified per theme; control buttons are neutral until hover/active.</li>
-                    <li>In-page confirmation added for downloading the offline player.</li>
-                    <li>Upcoming Updates: Search for a song and play it directly from your playlist, Add a song to the playlist by searching for it.</li>
-                    <li>Upcoming Updates: Improved performance and stability for Windows users.</li>
+                    <li>PiP (Player-in-Player) now opens when tab is hidden. </li>
+                    <li>Support Page added. </li>
+                    <li>Multiple file support added. </li>
                     <li>For a more detailed list of changes, please visit the <a href="changelog.html">Change Log</a> through the menu dropdown at the top of the site.</li>
                 </ul>
             </div>
@@ -93,7 +88,7 @@
                         <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
                         <a class="upload-btn" href="offline-music-player.html" download data-download-href="offline-music-player.html" onclick="openDownloadConfirm(event)">Download Offline File</a>
                         <button class="upload-btn clear-btn" onclick="openClearConfirm()">Clear Songs</button>
-                        <input type="file" id="fileInput" class="file-input" accept=".mp3,.wav,.ogg,.m4a,.flac" multiple>
+                        <input type="file" id="fileInput" class="file-input" accept=".mp3,.wav,.ogg,.m4a,.aac,.flac,.opus,.weba" multiple>
                     </div>
                 </div>
 
