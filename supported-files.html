@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark" data-theme="classic">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supported Audio Formats</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YSG0B82WE6"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-YSG0B82WE6', {
+            page_path: location.pathname,
+            page_title: document.title,
+            page_referrer: document.referrer || undefined
+        });
+    </script>
+    <style>
+        .supported-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .supported-intro {
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--text-secondary);
+        }
+
+        .supported-intro p {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .format-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 8px 20px var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+        }
+
+        .format-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px var(--shadow);
+        }
+
+        .format-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        .format-icon {
+            font-size: 28px;
+        }
+
+        .format-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .format-description {
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .format-specs {
+            background-color: var(--bg-primary);
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .format-specs strong {
+            color: var(--text-primary);
+        }
+
+        .format-uses {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+
+        .format-uses strong {
+            color: var(--text-primary);
+            display: block;
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+
+        .format-uses ul {
+            margin: 0;
+            padding-left: 20px;
+            list-style-type: disc;
+        }
+
+        .format-uses li {
+            margin-bottom: 4px;
+        }
+
+        .compatibility-note {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin-top: 30px;
+            border-radius: 4px;
+            color: var(--text-primary);
+        }
+
+        .compatibility-note strong {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .format-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .supported-container {
+                margin: 15px auto;
+                padding: 0 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎧 Supported Audio Formats</h1>
+            <div class="header-controls">
+                <select class="theme-select" id="themeSelect" aria-label="Theme">
+                    <option value="classic">Classic</option>
+                    <option value="synthwave">Retro Synthwave</option>
+                    <option value="glass">Glassmorphism Frost</option>
+                    <option value="forest">Forest</option>
+                    <option value="cyberpunk">Cyberpunk</option>
+                </select>
+                <button class="theme-toggle" onclick="toggleTheme()">☀️ Light Mode</button>
+                <div class="dropdown" id="menuDropdown">
+                    <button class="dropdown-btn" onclick="toggleDropdown()">☰ Menu</button>
+                    <div class="dropdown-content">
+                        <a href="index.html" class="dropdown-item">
+                            <span>🎵</span>
+                            <span>Back to Player</span>
+                        </a>
+                        <a href="contact.html" class="dropdown-item">
+                            <span>🆘</span>
+                            <span>Contact Support</span>
+                        </a>
+                        <a href="changelog.html" class="dropdown-item">
+                            <span>📄</span>
+                            <span>Changelog</span>
+                        </a>
+                        <a href="https://github.com/offline-music-player/offline-music-player.github.io" target="_blank" class="dropdown-item">
+                            <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                            </svg>
+                            <span>GitHub Repository</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="supported-container">
+            <div class="supported-intro">
+                <p>Our music player supports 8 different audio formats to ensure maximum compatibility with your music library. Whether you're using popular formats like MP3 or high-quality lossless audio, we've got you covered.</p>
+            </div>
+
+            <div class="format-grid">
+                <!-- MP3 -->
+                <div class="format-card">
+                    <div class="format-header">
+                        <div class="format-icon">🎵</div>
+                        <div class="format-name">MP3</div>
+                    </div>
+                    <div class="format-description">MPEG-1 Audio Layer III - The most widely used audio format worldwide.</div>
+                    <div class="format-specs">
+                        <strong>File Extension:</strong> .mp3<br>
+                        <strong>Compression:</strong> Lossy<br>
+                        <strong>Bitrate:</strong> 128-320 kbps (typical)
+                    </div>
+                    <div class="format-uses">
+                        <strong>Common Uses:</strong>
+                        <ul>
+                            <li>Music streaming and downloads</li>
+                            <li>Podcasts and audiobooks</li>
+                            <li>Portable music players</li>
+                            <li>General music sharing</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- WAV -->
+                <div class="format-card">
+                    <div class="format-header">
+                        <div class="format-icon">📻</div>
+                        <div class="format-name">WAV</div>
+                    </div>
+                    <div class="format-description">Waveform Audio File Format - Uncompressed audio providing highest quality.</div>
+                    <div class="format-specs">
+                        <strong>File Extension:</strong> .wav<br>
+                        <strong>Compression:</strong> Uncompressed<br>
+                        <strong>Bitrate:</strong> 1411 kbps (typical, 44.1 kHz)
+                    </div>
+                    <div class="format-uses">
+                        <strong>Common Uses:</strong>
+                        <ul>
+                            <li>Professional audio production</li>
+                            <li>Archival purposes</li>
+                            <li>High-fidelity audio</li>
+                            <li>Sound effects and samples</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- OGG -->
+                <div class="format-card">
+                    <div class="format-header">
+                        <div class="format-icon">🎼</div>
+                        <div class="format-name">OGG</div>
+                    </div>
+                    <div class="format-description">Ogg Vorbis - Open-source audio format with excellent quality-to-size ratio.</div>
+                    <div class="format-specs">
+                        <strong>File Extension:</strong> .ogg<br>
+                        <strong>Compression:</strong> Lossy<br>
+                        <strong>Bitrate:</strong> 128-320 kbps (typical)
+                    </div>
+                    <div class="format-uses">
+                        <strong>Common Uses:</strong>
+                        <ul>
+                            <li>Web audio and streaming</li>
+                            <li>Video game audio</li>
+                            <li>Linux and open-source projects</li>
+                            <li>Quality-focused music distribution</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- M4A -->
+                <div class="format-card">
+                    <div class="format-header">
+                        <div class="format-icon">🍎</div>
+                        <div class="format-name">M4A</div>
+                    </div>
+                    <div class="format-description">MPEG-4 Audio - Apple's preferred format using AAC compression technology.</div>
+                    <div class="format-specs">
+                        <strong>File Extension:</strong> .m4a<br>
+                        <strong>Compression:</strong> Lossy<br>
+                        <strong>Bitrate:</strong> 128-256 kbps (typical)
+                    </div>
+                    <div class="format-uses">
+                        <strong>Common Uses:</strong>
+                        <ul>
+                            <li>iTunes and Apple Music</li>
+                            <li>iPhone, iPad, Mac devices</li>
+                            <li>DRM-protected music (with iTunes)</li>
+                            <li>High-quality downloads</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- AAC -->
+                <div class="format-card">
+                    <div class="format-header">
+                        <div class="format-icon">🔊</div>
+                        <div class="format-name">AAC</div>
+                    </div>
+                    <div class="format-description">Advanced Audio Coding - Modern codec offering superior quality at lower bitrates.</div>
+                    <div class="format-specs">
+                        <strong>File Extension:</strong> .aac<br>
+                        <strong>Compression:</strong> Lossy<br>
+                        <strong>Bitrate:</strong> 96-320 kbps (typical)
+                    </div>
+                    <div class="format-uses">
+                        <strong>Common Uses:</strong>
+                        <ul>
+                            <li>YouTube and Android devices</li>
+                            <li>Streaming services</li>
+                            <li>Mobile music players</li>
+                            <li>Professional broadcasting</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- FLAC -->
+                <div class="format-card">
+                    <div class="format-header">
+                        <div class="format-icon">💎</div>
+                        <div class="format-name">FLAC</div>
+                    </div>
+                    <div class="format-description">Free Lossless Audio Codec - Lossless compression for perfect audio quality.</div>
+                    <div class="format-specs">
+                        <strong>File Extension:</strong> .flac<br>
+                        <strong>Compression:</strong> Lossless<br>
+                        <strong>Bitrate:</strong> Variable (typically 600-1200 kbps)
+                    </div>
+                    <div class="format-uses">
+                        <strong>Common Uses:</strong>
+                        <ul>
+                            <li>Audiophile listening</li>
+                            <li>Music archival</li>
+                            <li>Bandcamp and independent artists</li>
+                            <li>Studio recording projects</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- OPUS -->
+                <div class="format-card">
+                    <div class="format-header">
+                        <div class="format-icon">🎙️</div>
+                        <div class="format-name">OPUS</div>
+                    </div>
+                    <div class="format-description">Opus Codec - Modern codec designed for excellent quality at very low bitrates.</div>
+                    <div class="format-specs">
+                        <strong>File Extension:</strong> .opus<br>
+                        <strong>Compression:</strong> Lossy<br>
+                        <strong>Bitrate:</strong> 6-510 kbps (highly flexible)
+                    </div>
+                    <div class="format-uses">
+                        <strong>Common Uses:</strong>
+                        <ul>
+                            <li>WebRTC and VoIP</li>
+                            <li>Streaming services</li>
+                            <li>Podcasts and speech</li>
+                            <li>Low-bandwidth applications</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- WEBA -->
+                <div class="format-card">
+                    <div class="format-header">
+                        <div class="format-icon">🌐</div>
+                        <div class="format-name">WEBA</div>
+                    </div>
+                    <div class="format-description">WebA - Web audio format using Vorbis codec in WebM container.</div>
+                    <div class="format-specs">
+                        <strong>File Extension:</strong> .weba<br>
+                        <strong>Compression:</strong> Lossy<br>
+                        <strong>Bitrate:</strong> 128-320 kbps (typical)
+                    </div>
+                    <div class="format-uses">
+                        <strong>Common Uses:</strong>
+                        <ul>
+                            <li>Web browsers and streaming</li>
+                            <li>Cross-platform audio</li>
+                            <li>HTML5 audio elements</li>
+                            <li>Modern web applications</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="compatibility-note">
+                <strong>📌 Compatibility Note:</strong> Our music player supports all 8 formats across modern web browsers. However, browser support may vary depending on your system and the codecs installed. All formats are tested and optimized for seamless playback. If you experience any issues with a specific format, please <a href="contact.html" style="color: var(--accent); text-decoration: none;">contact support</a>.
+            </div>
+        </div>
+    </div>
+
+    <script src="themes.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
