@@ -1,0 +1,77 @@
+<style>
+/* Warning Bar - Top of Site */
+.warning-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, var(--ui-accent, #ff6b6b) 0%, var(--ui-accent-2, #ee5a6f) 100%);
+    color: var(--ui-button-text, #ffffff);
+    padding: 0;
+    z-index: 10000;
+    box-shadow: 0 4px 12px var(--ui-glow, rgba(255, 107, 107, 0.3));
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.warning-bar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    max-width: 100%;
+}
+
+.warning-close-btn {
+    background: none;
+    border: none;
+    color: var(--ui-button-text, #ffffff);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 10px;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.warning-close-btn:hover {
+    opacity: 1;
+}
+</style>
+
+<div class="warning-bar" role="status" aria-live="polite">
+    <div class="warning-bar-content">
+        <span>⚠️ Current version is still under development</span>
+    </div>
+</div>
+
+<script>
+(() => {
+    function closeWarningBar() {
+        const warningBar = document.querySelector('.warning-bar');
+        if (!warningBar) return;
+        warningBar.style.display = 'none';
+        document.body.classList.remove('warning-bar-active');
+    }
+
+    function showWarningBar() {
+        const warningBar = document.querySelector('.warning-bar');
+        if (!warningBar) return;
+        warningBar.style.display = 'block';
+        document.body.classList.add('warning-bar-active');
+    }
+
+    window.closeWarningBar = closeWarningBar;
+    window.showWarningBar = showWarningBar;
+})();
+</script>

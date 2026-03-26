@@ -19,38 +19,30 @@ let pipCloneObserver = null;
 let pipCloneSyncQueued = false;
 let updateLogSignature = '';
 
-// ============================================
 // WARNING BAR & POPUP CONFIGURATION
-// ============================================
-// bar: 'active' (shows) or 'inactive' (hides)
-// popup: 'active' (shows) or 'inactive' (hides)
 const WARNING_CONFIG = {
-    bar: 'inactive',
-    popup: 'active'
+    bar: 'active',
+    popup: 'inactive'
+};
+const WARNING_SOURCES = {
+    bar: 'bar.html',
+    popup: 'popup.html'
 };
 
-// ============================================
 // UPDATE LOG CONFIGURATION
-// ============================================
 const UPDATE_LOG_CONFIG = {
     enabled: true,
-    version: 'Mar 17, 2026',
-    displayDate: 'Mar 17, 2026',
+    version: 'v1.4.0',
+    displayDate: 'Mar 26, 2026',
     title: 'Latest Updates',
     items: [
-        'PiP now auto-opens when the tab is hidden and closes when visible again (auto mode).',
-        'Manual PiP toggle keeps the main tab visible while PiP stays open.',
-        'PiP controls now sync with the main player (playback, volume, seek, playlist).',
-        'Theme refresh: Forest greener, Glass more frosted/blue, Cyberpunk hacker neon green.',
-        'Button styling unified per theme; control buttons are neutral until hover/active.',
-        'In-page confirmation added for downloading the offline player.',
-        'Upcoming Updates: Search for a song and play it directly from your playlist, Add a song to the playlist by searching for it.',
-        'Upcoming Updates: Improved performance and stability for Windows users.',
-        'Upcoming Updates: .flac file support'
+        'PiP no longer has a button due to issues with functions not working with the site.',
+        'Warning is now able to be controled backend instead of frontend.',
+        'For a more detailed list of changes, please visit the <a href="changelog.html">Change Log</a> through the menu dropdown at the top of the site.'
     ]
 };
 
-const SITE_VERSION = 'v1.3.3';
+const SITE_VERSION = 'v1.4.0';
 const SETTINGS_DB_NAME = 'offlineMusicPlayerSettings';
 const SETTINGS_DB_VERSION = 1;
 const SETTINGS_STORE = 'settings';
@@ -194,13 +186,13 @@ function handleFileSelect(e) {
 function addFilesToPlaylist(files) {
     const audioFiles = files.filter(file => 
         file.type.startsWith('audio/') || 
-        file.name.match(/\.(mp3|wav|ogg|m4a)$/i)
+        file.name.match(/\.(mp3|wav|ogg|m4a|flac)$/i)
     );
 
     audioFiles.forEach(file => {
         const url = URL.createObjectURL(file);
         const song = {
-            name: file.name.replace(/\.(mp3|wav|ogg|m4a)$/i, ''),
+            name: file.name.replace(/\.(mp3|wav|ogg|m4a|flac)$/i, ''),
             url: url,
             file: file,
             duration: '0:00'
@@ -403,8 +395,9 @@ function forward15() {
     audioPlayer.currentTime = Math.min(audioPlayer.duration, audioPlayer.currentTime + 15);
 }
 
-function seekTo(e) {
-    const rect = progressBar.getBoundingClientRect();
+function seekTo(e, barEl = progressBar) {
+    if (!barEl) return;
+    const rect = barEl.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
     audioPlayer.currentTime = percent * audioPlayer.duration;
 }
@@ -587,30 +580,32 @@ function schedulePiPCloneSync() {
 function syncPiPClone() {
     if (!pipContentClone || !pipWindow) return;
     pipContentClone.innerHTML = pipContent.innerHTML;
-    bindPiPCloneInputs();
+    bindMainCloneInputs();
     updatePiPButtonState(true);
 }
 
-function bindPiPCloneInputs() {
-    if (!pipWindow || !pipWindow.document) return;
-    const pipVolumeSlider = pipWindow.document.getElementById('volumeSlider');
-    if (pipVolumeSlider) {
+function bindMainCloneInputs() {
+    if (!pipContentClone) return;
+    const root = pipContentClone;
+
+    const cloneVolumeSlider = root.querySelector('#volumeSlider');
+    if (cloneVolumeSlider) {
         if (volumeSlider) {
-            pipVolumeSlider.value = volumeSlider.value;
+            cloneVolumeSlider.value = volumeSlider.value;
         }
-        pipVolumeSlider.oninput = (e) => {
+        cloneVolumeSlider.oninput = (e) => {
             audioPlayer.volume = e.target.value / 100;
         };
     }
 
-    const pipFileInput = pipWindow.document.getElementById('fileInput');
-    if (pipFileInput) {
-        pipFileInput.onchange = (e) => handleFileSelect(e);
+    const cloneFileInput = root.querySelector('#fileInput');
+    if (cloneFileInput) {
+        cloneFileInput.onchange = (e) => handleFileSelect(e);
     }
 
-    const pipProgressBar = pipWindow.document.getElementById('progressBar');
-    if (pipProgressBar) {
-        pipProgressBar.onclick = (e) => seekTo(e);
+    const cloneProgressBar = root.querySelector('#progressBar');
+    if (cloneProgressBar) {
+        cloneProgressBar.onclick = (e) => seekTo(e, cloneProgressBar);
     }
 
     const actionMap = [
@@ -625,7 +620,7 @@ function bindPiPCloneInputs() {
     ];
 
     actionMap.forEach(([selector, handler]) => {
-        pipWindow.document.querySelectorAll(selector).forEach((el) => {
+        root.querySelectorAll(selector).forEach((el) => {
             el.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -641,7 +636,7 @@ function bindPiPCloneInputs() {
         ['[data-action="next"]', nextSong]
     ];
     controlActions.forEach(([selector, handler]) => {
-        pipWindow.document.querySelectorAll(selector).forEach((el) => {
+        root.querySelectorAll(selector).forEach((el) => {
             el.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -650,7 +645,7 @@ function bindPiPCloneInputs() {
         });
     });
 
-    pipWindow.document.querySelectorAll('.playlist-item').forEach((item) => {
+    root.querySelectorAll('.playlist-item').forEach((item) => {
         const index = Number(item.getAttribute('data-index'));
         if (!Number.isNaN(index)) {
             item.onclick = (e) => {
@@ -661,7 +656,7 @@ function bindPiPCloneInputs() {
         }
     });
 
-    pipWindow.document.querySelectorAll('.remove-btn').forEach((btn) => {
+    root.querySelectorAll('.remove-btn').forEach((btn) => {
         const index = Number(btn.getAttribute('data-index'));
         if (!Number.isNaN(index)) {
             btn.onclick = (e) => {
@@ -691,7 +686,7 @@ function setupPiPBehavior() {
     });
 
     const themeObserver = new MutationObserver(syncPiPTheme);
-    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-mode'] });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-mode', 'style'] });
 }
 
 async function openPiPWindow({ reason } = {}) {
@@ -721,6 +716,7 @@ async function openPiPWindow({ reason } = {}) {
 
 function setupPiPWindow(pip) {
     pipWindow = pip;
+    pipDelegatesActive = false;
 
     /**
      * How it works:
@@ -739,17 +735,17 @@ function setupPiPWindow(pip) {
     pipWindow.loadSong = loadSong;
     pipWindow.removeSong = removeSong;
     pipWindow.togglePiP = togglePiP;
+    pipWindow.openClearConfirm = openClearConfirm;
+    pipWindow.closeClearConfirm = closeClearConfirm;
+    pipWindow.confirmClearSongs = confirmClearSongs;
+    pipWindow.openDownloadConfirm = openDownloadConfirm;
+    pipWindow.closeDownloadConfirm = closeDownloadConfirm;
 
     const baseTag = pipWindow.document.createElement('base');
     baseTag.href = document.baseURI;
     pipWindow.document.head.appendChild(baseTag);
 
-    document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
-        pipWindow.document.head.appendChild(link.cloneNode(true));
-    });
-    document.querySelectorAll('style').forEach((styleTag) => {
-        pipWindow.document.head.appendChild(styleTag.cloneNode(true));
-    });
+    injectPiPStyles();
 
     const pipStyle = pipWindow.document.createElement('style');
     pipStyle.textContent = 'body{margin:0;overflow:auto;}';
@@ -759,9 +755,12 @@ function setupPiPWindow(pip) {
     pipWindow.document.documentElement.classList.add('pip-mode');
     pipWindow.document.body.classList.add('pip-mode');
     syncPiPTheme();
-    const contentForPiP = pipManualOpened ? pipContent.cloneNode(true) : pipContent;
+    const contentForPiP = pipContent;
     if (pipManualOpened) {
-        pipContentClone = contentForPiP;
+        pipContentClone = pipContent.cloneNode(true);
+        if (pipAnchor && pipAnchor.parentElement) {
+            pipAnchor.parentElement.insertBefore(pipContentClone, pipAnchor);
+        }
         if (pipCloneObserver) pipCloneObserver.disconnect();
         pipCloneObserver = new MutationObserver(schedulePiPCloneSync);
         pipCloneObserver.observe(pipContent, { subtree: true, childList: true, attributes: true, characterData: true });
@@ -776,6 +775,7 @@ function setupPiPWindow(pip) {
     if (pipManualOpened) {
         syncPiPClone();
     }
+    attachPiPDelegates();
     ensureAudioContext();
     resizeVisualizer();
     setTimeout(resizeVisualizer, 60);
@@ -785,6 +785,40 @@ function setupPiPWindow(pip) {
     pipWindow.addEventListener('pagehide', restorePiPContent);
     pipWindow.addEventListener('beforeunload', restorePiPContent);
     attachPiPShortcuts();
+}
+
+function injectPiPStyles() {
+    if (!pipWindow || !pipWindow.document) return;
+
+    const head = pipWindow.document.head;
+    document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+        head.appendChild(link.cloneNode(true));
+    });
+    document.querySelectorAll('style').forEach((styleTag) => {
+        head.appendChild(styleTag.cloneNode(true));
+    });
+
+    const cssText = collectLocalCssText();
+    if (cssText) {
+        const inlineStyle = pipWindow.document.createElement('style');
+        inlineStyle.textContent = cssText;
+        head.appendChild(inlineStyle);
+    }
+}
+
+function collectLocalCssText() {
+    const chunks = [];
+    Array.from(document.styleSheets).forEach((sheet) => {
+        try {
+            if (!sheet.cssRules) return;
+            Array.from(sheet.cssRules).forEach((rule) => {
+                chunks.push(rule.cssText);
+            });
+        } catch (error) {
+            // Ignore cross-origin stylesheets
+        }
+    });
+    return chunks.length ? chunks.join('\n') : '';
 }
 
 function forcePiPSize() {
@@ -840,6 +874,7 @@ function syncPiPTheme() {
 function restorePiPContent() {
     if (!pipContent || !pipAnchor) return;
     detachPiPShortcuts();
+    detachPiPDelegates();
     if (pipContentClone) {
         if (pipContentClone.parentElement) {
             pipContentClone.parentElement.removeChild(pipContentClone);
@@ -849,11 +884,13 @@ function restorePiPContent() {
             pipCloneObserver.disconnect();
             pipCloneObserver = null;
         }
-    } else if (pipContent.ownerDocument !== document) {
+    }
+    if (pipContent.ownerDocument !== document) {
         pipAnchor.parentElement.insertBefore(pipContent, pipAnchor);
     }
     pipWindow = null;
     pipManualOpened = false;
+    pipDelegatesActive = false;
     stopVisualizer();
     updatePiPButtonState(false);
 }
@@ -878,6 +915,8 @@ function closePiPWindow({ reason } = {}) {
 
 let pipKeydownHandler = null;
 let pipKeyupHandler = null;
+let pipDelegatesActive = false;
+let pipDelegateHandlers = null;
 
 function attachPiPShortcuts() {
     if (!pipWindow || !pipWindow.document || pipKeydownHandler) return;
@@ -942,6 +981,98 @@ function detachPiPShortcuts() {
         pipWindow.document.removeEventListener('keyup', pipKeyupHandler, { capture: true });
         pipKeyupHandler = null;
     }
+}
+
+function attachPiPDelegates() {
+    if (!pipWindow || !pipWindow.document || pipDelegateHandlers) return;
+    const doc = pipWindow.document;
+    const onClick = (e) => {
+        const target = e.target;
+        if (!target || !doc.body) return;
+
+        const removeBtn = target.closest('.remove-btn');
+        if (removeBtn) {
+            const index = Number(removeBtn.getAttribute('data-index'));
+            if (!Number.isNaN(index)) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                removeSong(e, index);
+            }
+            return;
+        }
+
+        const playlistItem = target.closest('.playlist-item');
+        if (playlistItem) {
+            const index = Number(playlistItem.getAttribute('data-index'));
+            if (!Number.isNaN(index)) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                loadSong(index);
+            }
+            return;
+        }
+
+        const progressBarEl = target.closest('#progressBar');
+        if (progressBarEl) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            seekTo(e, progressBarEl);
+            return;
+        }
+
+        const actionMap = [
+            ['#playPauseBtn', togglePlay],
+            ['#repeatBtn', toggleRepeat],
+            ['#shuffleBtn', toggleShuffle],
+            ['#pipBtn', togglePiP],
+            ['#clearModalCancelBtn', closeClearConfirm],
+            ['#clearModalConfirmBtn', confirmClearSongs],
+            ['.update-log-close', closeUpdateLog],
+            ['.update-log-btn', closeUpdateLog],
+            ['[data-action="prev"]', previousSong],
+            ['[data-action="rewind"]', rewind15],
+            ['[data-action="forward"]', forward15],
+            ['[data-action="next"]', nextSong]
+        ];
+
+        for (const [selector, handler] of actionMap) {
+            if (target.closest(selector)) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                handler(e);
+                return;
+            }
+        }
+    };
+
+    const onInput = (e) => {
+        if (e.target && e.target.id === 'volumeSlider') {
+            audioPlayer.volume = e.target.value / 100;
+        }
+    };
+
+    const onChange = (e) => {
+        if (e.target && e.target.id === 'fileInput') {
+            handleFileSelect(e);
+        }
+    };
+
+    doc.addEventListener('click', onClick, true);
+    doc.addEventListener('input', onInput, true);
+    doc.addEventListener('change', onChange, true);
+    pipDelegateHandlers = { onClick, onInput, onChange };
+}
+
+function detachPiPDelegates() {
+    if (!pipWindow || !pipWindow.document || !pipDelegateHandlers) {
+        pipDelegateHandlers = null;
+        return;
+    }
+    const doc = pipWindow.document;
+    doc.removeEventListener('click', pipDelegateHandlers.onClick, true);
+    doc.removeEventListener('input', pipDelegateHandlers.onInput, true);
+    doc.removeEventListener('change', pipDelegateHandlers.onChange, true);
+    pipDelegateHandlers = null;
 }
 
 // ============================================
@@ -1074,23 +1205,103 @@ function initializeSiteVersion() {
     versionBadge.textContent = SITE_VERSION;
 }
 
+function isWarningEnabled(value) {
+    return value === true || value === 'active';
+}
+
+function syncWarningTheme() {
+    const theme = document.documentElement.getAttribute('data-theme');
+    document.querySelectorAll('[data-warning-fragment]').forEach((fragment) => {
+        if (theme) {
+            fragment.setAttribute('data-theme', theme);
+        } else {
+            fragment.removeAttribute('data-theme');
+        }
+    });
+}
+
+function removeWarningFragment(kind) {
+    const existing = document.querySelector(`[data-warning-fragment="${kind}"]`);
+    if (existing) {
+        existing.remove();
+    }
+}
+
+async function loadWarningFragment(kind) {
+    const source = WARNING_SOURCES[kind];
+    if (!source) return null;
+
+    const existing = document.querySelector(`[data-warning-fragment="${kind}"]`);
+    if (existing) return existing;
+
+    try {
+        const response = await fetch(source, { cache: 'no-store' });
+        if (!response.ok) {
+            console.warn(`Warning fragment failed to load: ${source}`);
+            return null;
+        }
+        const html = await response.text();
+        const wrapper = document.createElement('div');
+        wrapper.dataset.warningFragment = kind;
+        wrapper.className = 'warning-fragment';
+        wrapper.innerHTML = html;
+
+        const theme = document.documentElement.getAttribute('data-theme');
+        if (theme) {
+            wrapper.setAttribute('data-theme', theme);
+        }
+
+        if (kind === 'bar') {
+            document.body.prepend(wrapper);
+        } else {
+            document.body.appendChild(wrapper);
+        }
+
+        wrapper.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => {
+            document.head.appendChild(node);
+        });
+
+        wrapper.querySelectorAll('script').forEach((script) => {
+            const injected = document.createElement('script');
+            for (const attr of script.attributes) {
+                injected.setAttribute(attr.name, attr.value);
+            }
+            injected.textContent = script.textContent;
+            document.body.appendChild(injected);
+            script.remove();
+        });
+
+        syncWarningTheme();
+
+        return wrapper;
+    } catch (err) {
+        console.warn(`Warning fragment failed to load: ${source}`, err);
+        return null;
+    }
+}
+
 /**
  * Initialize warning bar and popup visibility based on configuration
  */
-function initializeWarningElements() {
-    const warningBar = document.querySelector('.warning-bar');
-    const warningPopup = document.querySelector('.warning-popup');
-    
-    // Set bar visibility
-    if (warningBar) {
-        const barActive = WARNING_CONFIG.bar === 'active';
-        warningBar.style.display = barActive ? 'block' : 'none';
-        document.body.classList.toggle('warning-bar-active', barActive);
+async function initializeWarningElements() {
+    const barActive = isWarningEnabled(WARNING_CONFIG.bar);
+    const popupActive = isWarningEnabled(WARNING_CONFIG.popup);
+    const pathname = (window.location && window.location.pathname) ? window.location.pathname.toLowerCase() : '';
+    const popupDisabledPages = new Set(['changelog.html', 'contact.html', 'features.html']);
+    const popupAllowed = !popupDisabledPages.has(pathname.split('/').pop());
+
+    document.body.classList.toggle('warning-bar-active', barActive);
+
+    if (barActive) {
+        await loadWarningFragment('bar');
+    } else {
+        removeWarningFragment('bar');
     }
-    
-    // Set popup visibility
-    if (warningPopup) {
-        warningPopup.style.display = WARNING_CONFIG.popup === 'active' ? 'flex' : 'none';
+
+    if (popupActive && popupAllowed) {
+        await loadWarningFragment('popup');
+    } else {
+        removeWarningFragment('popup');
     }
 }
 
@@ -1128,12 +1339,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (themeSelect) {
-        const savedTheme = localStorage.getItem('ui-theme') || document.documentElement.getAttribute('data-theme') || 'classic';
-        themeSelect.value = savedTheme;
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        if (window.ThemeEngine) {
-            window.ThemeEngine.setThemePreset(savedTheme);
-        }
+        (async () => {
+            let savedTheme = await getSetting('ui-theme');
+            if (!savedTheme) {
+                const legacyTheme = localStorage.getItem('ui-theme');
+                if (legacyTheme) {
+                    savedTheme = legacyTheme;
+                    setSetting('ui-theme', legacyTheme);
+                    localStorage.removeItem('ui-theme');
+                }
+            }
+            savedTheme = savedTheme || document.documentElement.getAttribute('data-theme') || 'classic';
+            themeSelect.value = savedTheme;
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (window.ThemeEngine) {
+                window.ThemeEngine.setThemePreset(savedTheme);
+            }
+            syncWarningTheme();
+        })();
 
         themeSelect.addEventListener('change', (e) => {
             const nextTheme = e.target.value;
@@ -1141,7 +1364,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.ThemeEngine) {
                 window.ThemeEngine.setThemePreset(nextTheme);
             }
-            localStorage.setItem('ui-theme', nextTheme);
+            setSetting('ui-theme', nextTheme);
+            syncWarningTheme();
             if (pipWindow) {
                 syncPiPTheme();
             }
