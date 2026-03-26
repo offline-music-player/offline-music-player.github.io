@@ -21,7 +21,7 @@ let updateLogSignature = '';
 
 // WARNING BAR & POPUP CONFIGURATION
 const WARNING_CONFIG = {
-    bar: 'active',
+    bar: 'inactive',
     popup: 'inactive'
 };
 const WARNING_SOURCES = {
@@ -32,7 +32,7 @@ const WARNING_SOURCES = {
 // UPDATE LOG CONFIGURATION
 const UPDATE_LOG_CONFIG = {
     enabled: true,
-    version: 'v1.4.0',
+    version: 'v1.3.5',
     displayDate: 'Mar 26, 2026',
     title: 'Latest Updates',
     items: [
@@ -47,42 +47,7 @@ const SETTINGS_DB_NAME = 'offlineMusicPlayerSettings';
 const SETTINGS_DB_VERSION = 1;
 const SETTINGS_STORE = 'settings';
 let settingsDbPromise = null;
-// ============================================
-// TEMPLATE FOR NEW HTML FILES
-// ============================================
-/*
-    <!-- Warning Bar (Top of Site) -->
-    <div class="warning-bar" style="display: none;">
-        <div class="warning-bar-content">
-            ⚠️ Some features are currently disabled or experiencing issues
-        </div>
-    </div>
 
-    <!-- Warning Popup Modal -->
-    <div class="warning-popup" style="display: none;">
-        <div class="warning-popup-content">
-            <div class="warning-popup-header">
-                <h2>⚠️ Feature Status</h2>
-                <button class="warning-popup-close" onclick="closeWarningPopup()">×</button>
-            </div>
-            <div class="warning-popup-body">
-                <p><strong>Currently Experiencing Issues:</strong></p>
-                <ul>
-                    <li>Some optional features are under development</li>
-                </ul>
-                <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-secondary);">
-                    The core music player functionality (uploading and playing local files) is working normally.
-                </p>
-            </div>
-            <div class="warning-popup-footer">
-                <button class="warning-popup-btn" onclick="closeWarningPopup()">Got it</button>
-            </div>
-        </div>
-    </div>
-
-Then add at the end of your HTML file (before </body>):
-    <script src="script.js"></script>
-*/
 // DOM elements
 const audioPlayer = document.getElementById('audioPlayer');
 const playPauseBtn = document.getElementById('playPauseBtn');
@@ -186,13 +151,13 @@ function handleFileSelect(e) {
 function addFilesToPlaylist(files) {
     const audioFiles = files.filter(file => 
         file.type.startsWith('audio/') || 
-        file.name.match(/\.(mp3|wav|ogg|m4a|flac)$/i)
+        file.name.match(/\.(mp3|wav|ogg|m4a|aac|flac|opus|weba)$/i)
     );
 
     audioFiles.forEach(file => {
         const url = URL.createObjectURL(file);
         const song = {
-            name: file.name.replace(/\.(mp3|wav|ogg|m4a|flac)$/i, ''),
+            name: file.name.replace(/\.(mp3|wav|ogg|m4a|aac|flac|opus|weba)$/i, ''),
             url: url,
             file: file,
             duration: '0:00'
@@ -532,10 +497,7 @@ document.addEventListener('keyup', (e) => {
 // Initialize tab title
 updateTabTitle();
 
-// ============================================
 // PICTURE-IN-PICTURE (MINI PLAYER)
-// ============================================
-
 function initializePiPButton() {
     if (!pipBtn) return;
     const supported = 'documentPictureInPicture' in window && documentPictureInPicture.requestWindow;
@@ -909,10 +871,7 @@ function closePiPWindow({ reason } = {}) {
     restorePiPContent();
 }
 
-// ============================================
 // PIP SHORTCUTS
-// ============================================
-
 let pipKeydownHandler = null;
 let pipKeyupHandler = null;
 let pipDelegatesActive = false;
@@ -1075,10 +1034,7 @@ function detachPiPDelegates() {
     pipDelegateHandlers = null;
 }
 
-// ============================================
 // INITIALIZE WARNING BAR & POPUP
-// ============================================
-
 function getCookieValue(name) {
     const cookies = document.cookie ? document.cookie.split('; ') : [];
     for (const cookie of cookies) {
@@ -1144,9 +1100,7 @@ async function setSetting(key, value) {
     }
 }
 
-/**
- * Initialize update log modal visibility based on cookie and configuration
- */
+/* Initialize update log modal visibility based on cookie and configuration */
 function getUpdateLogSignature(payload) {
     return payload.join('|');
 }
@@ -1280,9 +1234,7 @@ async function loadWarningFragment(kind) {
     }
 }
 
-/**
- * Initialize warning bar and popup visibility based on configuration
- */
+/* Initialize warning bar and popup visibility based on configuration */
 async function initializeWarningElements() {
     const barActive = isWarningEnabled(WARNING_CONFIG.bar);
     const popupActive = isWarningEnabled(WARNING_CONFIG.popup);
@@ -1376,13 +1328,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// ============================================
 // WARNING POPUP & BAR FUNCTIONS
-// ============================================
-
-/**
- * Close the warning bar at the top
- */
+/* Close the warning bar at the top */
 function closeWarningBar() {
     const warningBar = document.querySelector('.warning-bar');
     if (warningBar) {
@@ -1391,9 +1338,7 @@ function closeWarningBar() {
     }
 }
 
-/**
- * Show the warning bar at the top
- */
+/* Show the warning bar at the top */
 function showWarningBar() {
     const warningBar = document.querySelector('.warning-bar');
     if (warningBar) {
@@ -1402,9 +1347,7 @@ function showWarningBar() {
     }
 }
 
-/**
- * Show the warning popup
- */
+/* Show the warning popup */
 function showWarningPopup() {
     const popup = document.querySelector('.warning-popup');
     if (popup) {
@@ -1412,9 +1355,7 @@ function showWarningPopup() {
     }
 }
 
-// ============================================
 // DOWNLOAD CONFIRMATION
-// ============================================
 let pendingDownloadHref = '';
 
 function openDownloadConfirm(event) {
@@ -1453,9 +1394,7 @@ function confirmDownload() {
     closeDownloadConfirm();
 }
 
-/**
- * Close the warning popup
- */
+/* Close the warning popup */
 function closeWarningPopup() {
     const popup = document.querySelector('.warning-popup');
     if (popup) {
@@ -1463,10 +1402,7 @@ function closeWarningPopup() {
     }
 }
 
-// ============================================
-// CLEAR SONGS MODAL
-// ============================================
-
+// Clear Songs Modal
 function openClearConfirm() {
     if (clearModalOverlay) {
         clearModalOverlay.hidden = false;
@@ -1519,9 +1455,7 @@ function clearAllSongs() {
     updateMiniQueue();
 }
 
-/**
- * Close the update log popup and remember it for this version
- */
+/* Close the update log popup and remember it for this version */
 function closeUpdateLog() {
     const updateLog = document.querySelector('.update-log');
     if (!updateLog) return;
@@ -1534,9 +1468,7 @@ function closeUpdateLog() {
     }
 }
 
-/**
- * Close popup when clicking outside of it
- */
+/* Close popup when clicking outside of it */
 document.addEventListener('click', (e) => {
     const popup = document.querySelector('.warning-popup');
     const popupContent = document.querySelector('.warning-popup-content');
@@ -1546,9 +1478,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-/**
- * Close update log when clicking outside of it
- */
+/* Close update log when clicking outside of it */
 document.addEventListener('click', (e) => {
     const updateLog = document.querySelector('.update-log');
     if (updateLog && e.target === updateLog) {
@@ -1556,10 +1486,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// ============================================
 // THEME ENGINE INTEGRATION
-// ============================================
-
 function applyDynamicThemeFromArt() {
     if (!window.ThemeEngine || !albumArt) return;
     if (albumArt.src) {
@@ -1567,11 +1494,8 @@ function applyDynamicThemeFromArt() {
     }
 }
 
-// ============================================
 // AUDIO CONTEXT + VISUALIZER
-// ============================================
-
-/**
+/*
  * How it works:
  * We create a single AudioContext + AnalyserNode for the HTMLAudioElement.
  * The analyser reads frequency data for a lightweight canvas renderer
@@ -1640,10 +1564,7 @@ function resizeVisualizer() {
     pipVisualizer.height = Math.floor(rect.height * ratio);
 }
 
-// ============================================
 // MINI QUEUE (PiP)
-// ============================================
-
 function updateMiniQueue() {
     if (!pipQueueText) return;
     if (!playlist.length) {
