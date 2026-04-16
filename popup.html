@@ -1,0 +1,183 @@
+<style>
+/* Warning Popup Modal */
+.warning-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.warning-popup-content {
+    background: var(--bg-secondary);
+    border-radius: 15px;
+    box-shadow: 0 20px 60px var(--shadow, rgba(0, 0, 0, 0.3));
+    max-width: 500px;
+    width: 90%;
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.warning-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 25px;
+    border-bottom: 2px solid var(--border);
+    background: linear-gradient(135deg, var(--ui-accent, #ff6b6b) 0%, var(--ui-accent-2, #ee5a6f) 100%);
+    color: var(--ui-button-text, #ffffff);
+}
+
+.warning-popup-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.warning-popup-close {
+    background: none;
+    border: none;
+    color: var(--ui-button-text, #ffffff);
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.warning-popup-close:hover {
+    opacity: 1;
+}
+
+.warning-popup-body {
+    padding: 25px;
+    color: var(--text-primary);
+}
+
+.warning-popup-body p {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+.warning-popup-body ul {
+    margin: 10px 0 10px 25px;
+    padding: 0;
+}
+
+.warning-popup-body li {
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+.warning-popup-footer {
+    padding: 20px 25px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.warning-popup-btn {
+    background: var(--ui-button-bg);
+    color: var(--ui-button-text);
+    border: 2px solid var(--ui-button-border);
+    padding: 10px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.warning-popup-btn:hover {
+    background: var(--ui-button-hover);
+    border-color: var(--ui-button-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px var(--ui-glow);
+}
+
+[data-theme="glass"] .warning-popup-content {
+    backdrop-filter: blur(18px) saturate(130%);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+}
+</style>
+
+<div class="warning-popup" role="dialog" aria-modal="true" aria-labelledby="warningPopupTitle">
+    <div class="warning-popup-content">
+        <div class="warning-popup-header">
+            <h2 id="warningPopupTitle">⚠️ Feature Status</h2>
+            <button class="warning-popup-close" type="button" aria-label="Close warning" onclick="closeWarningPopup()">×</button>
+        </div>
+        <div class="warning-popup-body">
+            <p><strong>Currently Experiencing Issues:</strong></p>
+            <ul>
+                <li>Some optional features are under development</li>
+            </ul>
+            <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-secondary);">
+                The core music player functionality (uploading and playing local files) is working normally.
+            </p>
+        </div>
+        <div class="warning-popup-footer">
+            <button class="warning-popup-btn" type="button" onclick="closeWarningPopup()">Got it</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(() => {
+    function closeWarningPopup() {
+        const warningPopup = document.querySelector('.warning-popup');
+        if (!warningPopup) return;
+        warningPopup.style.display = 'none';
+    }
+
+    function showWarningPopup() {
+        const warningPopup = document.querySelector('.warning-popup');
+        if (!warningPopup) return;
+        warningPopup.style.display = 'flex';
+    }
+
+    const warningPopup = document.querySelector('.warning-popup');
+    if (warningPopup) {
+        warningPopup.addEventListener('click', (event) => {
+            if (event.target === warningPopup) {
+                closeWarningPopup();
+            }
+        });
+    }
+
+    window.closeWarningPopup = closeWarningPopup;
+    window.showWarningPopup = showWarningPopup;
+})();
+</script>

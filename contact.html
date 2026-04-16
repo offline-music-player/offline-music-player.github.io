@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark" data-theme="classic">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Support</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YSG0B82WE6"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-YSG0B82WE6', {
+            page_path: location.pathname,
+            page_title: document.title,
+            page_referrer: document.referrer || undefined
+        });
+    </script>
+    <style>
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .ideas-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-top: 20px;
+        }
+
+        .home-btn {
+            text-decoration: none;
+        }
+
+        .ideas-container {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            padding: 20px;
+        }
+
+        .ideas-header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .ideas-header h2 {
+            font-size: 1.6em;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .ideas-header p {
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .ideas-description {
+            text-align: center;
+            color: var(--text-primary);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .info-box {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 20px var(--shadow);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--text-primary);
+            transition: color 0.3s;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 1em;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 5px rgba(220, 53, 69, 0.3);
+        }
+
+        .form-group .required {
+            color: #e74c3c;
+        }
+
+        .submit-btn {
+            background-color: var(--accent);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .submit-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            display: none;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .error-message {
+            display: none;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: var(--text-secondary);
+            transition: color 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎵 Music Player</h1>
+            <div class="header-controls">
+                <select class="theme-select" id="themeSelect" aria-label="Theme">
+                    <option value="classic">Classic</option>
+                    <option value="synthwave">Retro Synthwave</option>
+                    <option value="glass">Glassmorphism Frost</option>
+                    <option value="forest">Forest</option>
+                    <option value="cyberpunk">Cyberpunk</option>
+                </select>
+                <button class="theme-toggle" onclick="toggleTheme()">☀️ Light Mode</button>
+                <div class="dropdown" id="menuDropdown">
+                    <button class="dropdown-btn" onclick="toggleDropdown()">
+                        ☰ Menu
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="/" class="dropdown-item">
+                            <span>🎵</span>
+                            <span>Return to Player</span>
+                        </a>
+                        <a href="changelog.html" class="dropdown-item">
+                            <span>📝</span>
+                            <span>Changelog</span>
+                        </a>
+                        <a href="https://github.com/offline-music-player/offline-music-player.github.io" target="_blank" class="dropdown-item">
+                            <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                            </svg>
+                            <span>GitHub Repository</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ideas-container">
+            <div class="ideas-header">
+                <h2>Contact Support</h2>
+                <p>Tell us what’s going wrong and we’ll help you troubleshoot.</p>
+            </div>
+        
+        <div id="successMessage" class="success-message">
+            Thanks for reaching out! We've sent you a confirmation email.
+        </div>
+
+        <div id="errorMessage" class="error-message">
+            Something went wrong. Please try again.
+        </div>
+
+        <div id="loading" class="loading">
+            Sending your idea...
+        </div>
+
+        <form id="ideasForm">
+            <div class="form-group">
+                <label for="username">Name or Handle <span class="required">*</span></label>
+                <input type="text" id="username" name="username" placeholder="Your name or alias" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="message">Support Request <span class="required">*</span></label>
+                <textarea id="message" name="message" placeholder="Example: Playback won’t start after I add files" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="context">Device / Browser Info (optional)</label>
+                <textarea id="context" name="context" placeholder="Example: Windows 11, Chrome 122, Bluetooth headphones"></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">Send to Support</button>
+        </form>
+        </div>
+    </div>
+
+    <script>
+        // Form Submission
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjQVQ09paB7ib90429AZeDrkuUl7yupSLcutifBJoK5pqN2OYpSuhXcYjyx4512PJpmA/exec'; // Replace with your Google Apps Script URL
+
+        const form = document.getElementById('ideasForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const loadingDiv = document.getElementById('loading');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const message = document.getElementById('message').value.trim();
+            const context = document.getElementById('context').value.trim();
+
+            if (!username || !email || !message) {
+                errorMessage.textContent = 'Please fill in all required fields.';
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            loadingDiv.style.display = 'block';
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('email', email);
+            formData.append('message', message);
+            formData.append('context', context);
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                loadingDiv.style.display = 'none';
+                submitBtn.disabled = false;
+
+                if (response.ok) {
+                    successMessage.style.display = 'block';
+                    form.reset();
+                } else {
+                    errorMessage.textContent = 'Error sending idea. Please try again.';
+                    errorMessage.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loadingDiv.style.display = 'none';
+                submitBtn.disabled = false;
+                errorMessage.textContent = 'Error sending idea. Please check the console for details.';
+                errorMessage.style.display = 'block';
+            });
+        });
+    </script>
+    <script src="themes.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
