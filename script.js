@@ -21,7 +21,7 @@ let updateLogSignature = '';
 
 // WARNING BAR & POPUP CONFIGURATION
 const WARNING_CONFIG = {
-    bar: 'active',
+    bar: 'inactive',
     popup: 'inactive'
 };
 const WARNING_SOURCES = {
