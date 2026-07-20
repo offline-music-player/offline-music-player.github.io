@@ -35,6 +35,13 @@ const SETTINGS_DB_VERSION = 1;
 const SETTINGS_STORE = 'settings';
 let settingsDbPromise = null;
 
+const AUDIO_FILE_EXTENSIONS = [
+    'mp3', 'wav', 'ogg', 'm4a', 'flac', 'aiff', 'aif', 'pcm', 'dsd',
+    'wma', 'ape', 'wv', 'aac', 'opus', 'mid', 'midi', 'ac3'
+];
+const AUDIO_FILE_EXTENSION_PATTERN = new RegExp(`\\.(${AUDIO_FILE_EXTENSIONS.join('|')})$`, 'i');
+const AUDIO_FILE_ACCEPT = AUDIO_FILE_EXTENSIONS.map(extension => `.${extension}`).join(',');
+
 // DOM elements
 const audioPlayer = document.getElementById('audioPlayer');
 const playPauseBtn = document.getElementById('playPauseBtn');
@@ -68,7 +75,6 @@ const PIP_DIMENSIONS = { width: 300, height: 350 };
 let pipWindow = null;
 let pipOpening = false;
 
-// Initialize (only if audio player exists on this page)
 if (audioPlayer) {
     audioPlayer.volume = 0.5;
 
@@ -88,6 +94,7 @@ if (audioPlayer) {
     });
 
     fileInput.addEventListener('change', handleFileSelect);
+    fileInput.accept = AUDIO_FILE_ACCEPT;
 
     // Drag and drop functionality
     uploadArea.addEventListener('dragover', (e) => {
@@ -136,15 +143,14 @@ function handleFileSelect(e) {
 }
 
 function addFilesToPlaylist(files) {
-    const audioFiles = files.filter(file => 
-        file.type.startsWith('audio/') || 
-        file.name.match(/\.(mp3|wav|ogg|m4a|flac)$/i)
+    const audioFiles = files.filter(file =>
+        file.type.startsWith('audio/') || AUDIO_FILE_EXTENSION_PATTERN.test(file.name)
     );
 
     audioFiles.forEach(file => {
         const url = URL.createObjectURL(file);
         const song = {
-            name: file.name.replace(/\.(mp3|wav|ogg|m4a|flac)$/i, ''),
+            name: file.name.replace(AUDIO_FILE_EXTENSION_PATTERN, ''),
             url: url,
             file: file,
             duration: '0:00'
@@ -552,6 +558,7 @@ function bindMainCloneInputs() {
 
     const cloneFileInput = root.querySelector('#fileInput');
     if (cloneFileInput) {
+        cloneFileInput.accept = AUDIO_FILE_ACCEPT;
         cloneFileInput.onchange = (e) => handleFileSelect(e);
     }
 
