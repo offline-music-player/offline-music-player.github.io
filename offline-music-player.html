@@ -321,14 +321,6 @@ body::before {
     z-index: 1;
 }
 
-body.warning-bar-active {
-    padding-top: 50px;
-}
-
-.pip-mode.warning-bar-active {
-    padding-top: 0;
-}
-
 .pip-mode {
     width: 100vw;
     height: 100vh;
@@ -345,10 +337,7 @@ body.warning-bar-active {
 }
 
 .pip-mode .header,
-.pip-mode .upload-area,
-.pip-mode .warning-bar,
-.pip-mode .warning-popup,
-.pip-mode .update-log {
+.pip-mode .upload-area {
     display: none;
 }
 
@@ -563,9 +552,7 @@ body.warning-bar-active {
 [data-theme="glass"] .player-container,
 [data-theme="glass"] .playlist,
 [data-theme="glass"] .dropdown-content,
-[data-theme="glass"] .modal,
-[data-theme="glass"] .update-log-content,
-[data-theme="glass"] .warning-popup-content {
+[data-theme="glass"] .modal {
     backdrop-filter: blur(18px) saturate(130%);
     background: var(--bg-secondary);
     border: 1px solid var(--border);
@@ -1223,312 +1210,6 @@ body.warning-bar-active {
     }
 }
 
-/* ============================================
-   WARNING BAR & POPUP STYLES
-   ============================================ */
-
-/* Warning Bar - Top of Site */
-.warning-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-    color: white;
-    padding: 0;
-    z-index: 10000;
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
-    animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-    from {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.warning-bar-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 20px;
-    max-width: 100%;
-}
-
-.warning-close-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    padding: 0;
-    margin-left: 10px;
-    opacity: 0.8;
-    transition: opacity 0.3s ease;
-}
-
-.warning-close-btn:hover {
-    opacity: 1;
-}
-
-/* Warning Popup Modal */
-.warning-popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 10001;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-.warning-popup-content {
-    background: var(--bg-secondary);
-    border-radius: 15px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 500px;
-    width: 90%;
-    overflow: hidden;
-    animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-    from {
-        transform: translateY(30px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.warning-popup-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 25px;
-    border-bottom: 2px solid var(--border);
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-    color: white;
-}
-
-.warning-popup-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-}
-
-.warning-popup-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 28px;
-    cursor: pointer;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.8;
-    transition: opacity 0.3s ease;
-}
-
-.warning-popup-close:hover {
-    opacity: 1;
-}
-
-.warning-popup-body {
-    padding: 25px;
-    color: var(--text-primary);
-}
-
-.warning-popup-body p {
-    margin: 10px 0;
-    line-height: 1.6;
-}
-
-.warning-popup-body ul {
-    margin: 10px 0 10px 25px;
-    padding: 0;
-}
-
-.warning-popup-body li {
-    margin: 8px 0;
-    line-height: 1.5;
-}
-
-.warning-popup-footer {
-    padding: 20px 25px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.warning-popup-btn {
-    background: var(--ui-button-bg);
-    color: var(--ui-button-text);
-    border: 2px solid var(--ui-button-border);
-    padding: 10px 24px;
-    border-radius: 25px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.warning-popup-btn:hover {
-    background: var(--ui-button-hover);
-    border-color: var(--ui-button-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px var(--ui-glow);
-}
-
-/* ============================================
-   UPDATE LOG MODAL STYLES
-   ============================================ */
-
-.update-log {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 10002;
-    animation: fadeIn 0.3s ease;
-}
-
-.update-log-content {
-    background: var(--bg-secondary);
-    border-radius: 15px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 560px;
-    width: 92%;
-    overflow: hidden;
-    animation: slideUp 0.3s ease;
-}
-
-.update-log-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px;
-    border-bottom: 2px solid var(--border);
-    background: linear-gradient(135deg, #6c63ff 0%, #4e54c8 100%);
-    color: white;
-}
-
-.update-log-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-}
-
-.update-log-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 28px;
-    cursor: pointer;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.85;
-    transition: opacity 0.3s ease;
-}
-
-.update-log-close:hover {
-    opacity: 1;
-}
-
-.update-log-body {
-    padding: 24px;
-    color: var(--text-primary);
-    max-height: min(60vh, 360px);
-    overflow-y: auto;
-}
-
-.update-log-meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-}
-
-.update-log-label {
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: 0.72rem;
-}
-
-.update-log-version {
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.update-log-list {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.update-log-list li {
-    margin: 10px 0;
-    line-height: 1.6;
-}
-
-.update-log-footer {
-    padding: 18px 24px 24px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: flex-end;
-}
-
-.update-log-btn {
-    background: var(--ui-button-bg);
-    color: var(--ui-button-text);
-    border: 2px solid var(--ui-button-border);
-    padding: 10px 24px;
-    border-radius: 25px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.update-log-btn:hover {
-    background: var(--ui-button-hover);
-    border-color: var(--ui-button-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px var(--ui-glow);
-}
-
 .site-version {
     position: fixed;
     right: 16px;
@@ -1542,57 +1223,8 @@ body.warning-bar-active {
 }
 
 </style>
-    <!-- Google Analytics (GA4) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YSG0B82WE6"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){ dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-YSG0B82WE6', {
-            page_path: location.pathname,
-            page_title: document.title,
-            page_referrer: document.referrer || undefined
-        });
-    </script>
 </head>
 <body>
-    <!-- Warning Bar (Top of Site) -->
-    <div class="warning-bar" style="display: none;">
-        <div class="warning-bar-content">
-            ⚠️ Some features are currently disabled or experiencing issues
-        </div>
-    </div>
-
-    <!-- Update Log Modal -->
-    <div class="update-log" style="display: none;" data-update-log-key="update_log_seen">
-        <div class="update-log-content">
-            <div class="update-log-header">
-                <h2 data-update-log-title>Update Log</h2>
-                <button class="update-log-close" onclick="closeUpdateLog()">×</button>
-            </div>
-            <div class="update-log-body">
-                <div class="update-log-meta">
-                    <span class="update-log-label">Latest update:</span>
-                    <span class="update-log-version" data-update-log-version>Mar 17, 2026</span>
-                </div>
-                <ul class="update-log-list" data-update-log-items>
-                    <li>PiP now auto-opens when the tab is hidden and closes when visible again (auto mode).</li>
-                    <li>Manual PiP toggle keeps the main tab visible while PiP stays open.</li>
-                    <li>PiP controls now sync with the main player (playback, volume, seek, playlist).</li>
-                    <li>Theme refresh: Forest greener, Glass more frosted/blue, Cyberpunk hacker neon green.</li>
-                    <li>Button styling unified per theme; control buttons are neutral until hover/active.</li>
-                    <li>In-page confirmation added for downloading the offline player.</li>
-                    <li>Upcoming Updates: Search for a song and play it directly from your playlist, Add a song to the playlist by searching for it.</li>
-                    <li>Upcoming Updates: Improved performance and stability for Windows users.</li>
-                    <li>For a more detailed list of changes, please visit the <a href="changelog.html" target="_blank">Change Log</a>.</li>
-                </ul>
-            </div>
-            <div class="update-log-footer">
-                <button class="update-log-btn" onclick="closeUpdateLog()">Close</button>
-            </div>
-        </div>
-    </div>
-
     <div class="container">
         <div class="header">
             <h1 class="title">🎵 Music Player</h1>
@@ -1888,43 +1520,7 @@ let pipManualOpened = false;
 let pipContentClone = null;
 let pipCloneObserver = null;
 let pipCloneSyncQueued = false;
-let updateLogSignature = '';
-
-// ============================================
-// WARNING BAR & POPUP CONFIGURATION
-// ============================================
-// bar: 'active' (shows) or 'inactive' (hides)
-// popup: 'active' (shows) or 'inactive' (hides)
-const WARNING_CONFIG = {
-    bar: 'inactive',
-    popup: 'active'
-};
-
-// ============================================
-// UPDATE LOG CONFIGURATION
-// ============================================
-const UPDATE_LOG_CONFIG = {
-    enabled: true,
-    version: 'Mar 17, 2026',
-    displayDate: 'Mar 17, 2026',
-    title: 'Latest Updates',
-    items: [
-        'PiP now auto-opens when the tab is hidden and closes when visible again (auto mode).',
-        'Manual PiP toggle keeps the main tab visible while PiP stays open.',
-        'PiP controls now sync with the main player (playback, volume, seek, playlist).',
-        'Theme refresh: Forest greener, Glass more frosted/blue, Cyberpunk hacker neon green.',
-        'Button styling unified per theme; control buttons are neutral until hover/active.',
-        'In-page confirmation added for downloading the offline player.',
-        'Upcoming Updates: Search for a song and play it directly from your playlist, Add a song to the playlist by searching for it.',
-        'Upcoming Updates: Improved performance and stability for Windows users.'
-    ]
-};
-
 const SITE_VERSION = 'v1.3.2';
-const SETTINGS_DB_NAME = 'offlineMusicPlayerSettings';
-const SETTINGS_DB_VERSION = 1;
-const SETTINGS_STORE = 'settings';
-let settingsDbPromise = null;
 // DOM elements
 const audioPlayer = document.getElementById('audioPlayer');
 const playPauseBtn = document.getElementById('playPauseBtn');
@@ -2450,9 +2046,7 @@ function bindPiPCloneInputs() {
         ['#shuffleBtn', toggleShuffle],
         ['#pipBtn', togglePiP],
         ['#clearModalCancelBtn', closeClearConfirm],
-        ['#clearModalConfirmBtn', confirmClearSongs],
-        ['.update-log-close', closeUpdateLog],
-        ['.update-log-btn', closeUpdateLog]
+        ['#clearModalConfirmBtn', confirmClearSongs]
     ];
 
     actionMap.forEach(([selector, handler]) => {
@@ -2775,160 +2369,14 @@ function detachPiPShortcuts() {
     }
 }
 
-// ============================================
-// INITIALIZE WARNING BAR & POPUP
-// ============================================
-
-function getCookieValue(name) {
-    const cookies = document.cookie ? document.cookie.split('; ') : [];
-    for (const cookie of cookies) {
-        const [cookieName, ...rest] = cookie.split('=');
-        if (cookieName === name) {
-            return decodeURIComponent(rest.join('='));
-        }
-    }
-    return '';
-}
-
-function setCookieValue(name, value, days) {
-    const maxAge = days * 24 * 60 * 60;
-    document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; samesite=lax`;
-}
-
-function initSettingsDb() {
-    if (!('indexedDB' in window)) return Promise.resolve(null);
-    if (settingsDbPromise) return settingsDbPromise;
-    settingsDbPromise = new Promise((resolve, reject) => {
-        const request = indexedDB.open(SETTINGS_DB_NAME, SETTINGS_DB_VERSION);
-        request.onupgradeneeded = () => {
-            const db = request.result;
-            if (!db.objectStoreNames.contains(SETTINGS_STORE)) {
-                db.createObjectStore(SETTINGS_STORE);
-            }
-        };
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
-    return settingsDbPromise;
-}
-
-async function getSetting(key) {
-    try {
-        const db = await initSettingsDb();
-        if (!db) return null;
-        return await new Promise((resolve) => {
-            const tx = db.transaction(SETTINGS_STORE, 'readonly');
-            const store = tx.objectStore(SETTINGS_STORE);
-            const req = store.get(key);
-            req.onsuccess = () => resolve(req.result ?? null);
-            req.onerror = () => resolve(null);
-        });
-    } catch (error) {
-        return null;
-    }
-}
-
-async function setSetting(key, value) {
-    try {
-        const db = await initSettingsDb();
-        if (!db) return;
-        await new Promise((resolve) => {
-            const tx = db.transaction(SETTINGS_STORE, 'readwrite');
-            const store = tx.objectStore(SETTINGS_STORE);
-            const req = store.put(value, key);
-            req.onsuccess = () => resolve();
-            req.onerror = () => resolve();
-        });
-    } catch (error) {
-        // Ignore settings persistence errors
-    }
-}
-
-/**
- * Initialize update log modal visibility based on cookie and configuration
- */
-function getUpdateLogSignature(payload) {
-    return payload.join('|');
-}
-
-async function initializeUpdateLog() {
-    const updateLog = document.querySelector('.update-log');
-    if (!updateLog) return;
-
-    const title = updateLog.querySelector('[data-update-log-title]');
-    const version = updateLog.querySelector('[data-update-log-version]');
-    const list = updateLog.querySelector('[data-update-log-items]');
-
-    const fallbackTitle = title ? title.textContent.trim() : '';
-    const fallbackVersion = version ? version.textContent.trim() : '';
-    const fallbackItems = list
-        ? Array.from(list.querySelectorAll('li')).map(item => item.textContent.trim()).filter(Boolean)
-        : [];
-
-    const useConfig = UPDATE_LOG_CONFIG && UPDATE_LOG_CONFIG.enabled;
-    const hasFallbackTitle = Boolean(fallbackTitle);
-    const hasFallbackVersion = Boolean(fallbackVersion);
-    const hasFallbackItems = fallbackItems.length > 0;
-
-    // Prefer HTML content when it exists so manual edits show on the site.
-    const appliedTitle = hasFallbackTitle ? fallbackTitle : (useConfig ? UPDATE_LOG_CONFIG.title : '');
-    const appliedVersion = hasFallbackVersion ? fallbackVersion : (useConfig ? UPDATE_LOG_CONFIG.displayDate : '');
-    const appliedItems = hasFallbackItems
-        ? fallbackItems
-        : (useConfig && Array.isArray(UPDATE_LOG_CONFIG.items) ? UPDATE_LOG_CONFIG.items : []);
-
-    const signature = getUpdateLogSignature([
-        appliedTitle,
-        appliedVersion,
-        ...appliedItems
-    ]);
-    updateLogSignature = signature;
-
-    const updateLogKey = updateLog.dataset.updateLogKey || 'update_log_seen';
-    const stored = await getSetting(updateLogKey);
-    const cookieSeen = getCookieValue(updateLogKey);
-    const shouldShow = UPDATE_LOG_CONFIG && UPDATE_LOG_CONFIG.enabled &&
-        stored !== signature && cookieSeen !== signature;
-
-    if (title && appliedTitle) title.textContent = appliedTitle;
-    if (version && appliedVersion) version.textContent = appliedVersion;
-    if (list) {
-        list.innerHTML = appliedItems.map(item => `<li>${item}</li>`).join('');
-    }
-
-    updateLog.style.display = shouldShow ? 'flex' : 'none';
-}
-
 function initializeSiteVersion() {
     const versionBadge = document.querySelector('[data-site-version]');
     if (!versionBadge) return;
     versionBadge.textContent = SITE_VERSION;
 }
 
-/**
- * Initialize warning bar and popup visibility based on configuration
- */
-function initializeWarningElements() {
-    const warningBar = document.querySelector('.warning-bar');
-    const warningPopup = document.querySelector('.warning-popup');
-    
-    // Set bar visibility
-    if (warningBar) {
-        const barActive = WARNING_CONFIG.bar === 'active';
-        warningBar.style.display = barActive ? 'block' : 'none';
-        document.body.classList.toggle('warning-bar-active', barActive);
-    }
-    
-    // Set popup visibility
-    if (warningPopup) {
-        warningPopup.style.display = WARNING_CONFIG.popup === 'active' ? 'flex' : 'none';
-    }
-}
-
 // Run on page load
 document.addEventListener('DOMContentLoaded', () => {
-    initializeWarningElements();
-    initializeUpdateLog();
     initializeSiteVersion();
 
     if (clearModalConfirmBtn) {
@@ -2969,52 +2417,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateMiniQueue();
 });
 
-
-// ============================================
-// WARNING POPUP & BAR FUNCTIONS
-// ============================================
-
-/**
- * Close the warning bar at the top
- */
-function closeWarningBar() {
-    const warningBar = document.querySelector('.warning-bar');
-    if (warningBar) {
-        warningBar.style.display = 'none';
-        document.body.classList.remove('warning-bar-active');
-    }
-}
-
-/**
- * Show the warning bar at the top
- */
-function showWarningBar() {
-    const warningBar = document.querySelector('.warning-bar');
-    if (warningBar) {
-        warningBar.style.display = 'block';
-        document.body.classList.add('warning-bar-active');
-    }
-}
-
-/**
- * Show the warning popup
- */
-function showWarningPopup() {
-    const popup = document.querySelector('.warning-popup');
-    if (popup) {
-        popup.style.display = 'flex';
-    }
-}
-
-/**
- * Close the warning popup
- */
-function closeWarningPopup() {
-    const popup = document.querySelector('.warning-popup');
-    if (popup) {
-        popup.style.display = 'none';
-    }
-}
 
 // ============================================
 // CLEAR SONGS MODAL
@@ -3071,43 +2473,6 @@ function clearAllSongs() {
     updateTabTitle();
     updateMiniQueue();
 }
-
-/**
- * Close the update log popup and remember it for this version
- */
-function closeUpdateLog() {
-    const updateLog = document.querySelector('.update-log');
-    if (!updateLog) return;
-    updateLog.style.display = 'none';
-    const updateLogKey = updateLog.dataset.updateLogKey || 'update_log_seen';
-    const signature = updateLogSignature || '';
-    if (signature) {
-        setCookieValue(updateLogKey, signature, 365);
-        setSetting(updateLogKey, signature);
-    }
-}
-
-/**
- * Close popup when clicking outside of it
- */
-document.addEventListener('click', (e) => {
-    const popup = document.querySelector('.warning-popup');
-    const popupContent = document.querySelector('.warning-popup-content');
-    
-    if (popup && e.target === popup) {
-        closeWarningPopup();
-    }
-});
-
-/**
- * Close update log when clicking outside of it
- */
-document.addEventListener('click', (e) => {
-    const updateLog = document.querySelector('.update-log');
-    if (updateLog && e.target === updateLog) {
-        closeUpdateLog();
-    }
-});
 
 // ============================================
 // THEME ENGINE INTEGRATION

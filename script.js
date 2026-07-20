@@ -29,60 +29,12 @@ const WARNING_SOURCES = {
     popup: 'popup.html'
 };
 
-// UPDATE LOG CONFIGURATION
-const UPDATE_LOG_CONFIG = {
-    enabled: true,
-    version: 'v1.4.0',
-    displayDate: 'Mar 26, 2026',
-    title: 'Latest Updates',
-    items: [
-        'PiP no longer has a button due to issues with functions not working with the site.',
-        'Warning is now able to be controled backend instead of frontend.',
-        'For a more detailed list of changes, please visit the <a href="changelog.html">Change Log</a> through the menu dropdown at the top of the site.'
-    ]
-};
-
 const SITE_VERSION = 'v1.4.0';
 const SETTINGS_DB_NAME = 'offlineMusicPlayerSettings';
 const SETTINGS_DB_VERSION = 1;
 const SETTINGS_STORE = 'settings';
 let settingsDbPromise = null;
-// ============================================
-// TEMPLATE FOR NEW HTML FILES
-// ============================================
-/*
-    <!-- Warning Bar (Top of Site) -->
-    <div class="warning-bar" style="display: none;">
-        <div class="warning-bar-content">
-            ⚠️ Some features are currently disabled or experiencing issues
-        </div>
-    </div>
 
-    <!-- Warning Popup Modal -->
-    <div class="warning-popup" style="display: none;">
-        <div class="warning-popup-content">
-            <div class="warning-popup-header">
-                <h2>⚠️ Feature Status</h2>
-                <button class="warning-popup-close" onclick="closeWarningPopup()">×</button>
-            </div>
-            <div class="warning-popup-body">
-                <p><strong>Currently Experiencing Issues:</strong></p>
-                <ul>
-                    <li>Some optional features are under development</li>
-                </ul>
-                <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-secondary);">
-                    The core music player functionality (uploading and playing local files) is working normally.
-                </p>
-            </div>
-            <div class="warning-popup-footer">
-                <button class="warning-popup-btn" onclick="closeWarningPopup()">Got it</button>
-            </div>
-        </div>
-    </div>
-
-Then add at the end of your HTML file (before </body>):
-    <script src="script.js"></script>
-*/
 // DOM elements
 const audioPlayer = document.getElementById('audioPlayer');
 const playPauseBtn = document.getElementById('playPauseBtn');
@@ -718,12 +670,7 @@ function setupPiPWindow(pip) {
     pipWindow = pip;
     pipDelegatesActive = false;
 
-    /**
-     * How it works:
-     * The PiP window is a separate document. We move the existing player DOM
-     * into the PiP document, clone stylesheets, and then sync theme attributes
-     * plus CSS variables so the mini window stays visually consistent.
-     */
+    /* pip */
     pipWindow.previousSong = previousSong;
     pipWindow.rewind15 = rewind15;
     pipWindow.togglePlay = togglePlay;
@@ -1159,23 +1106,11 @@ async function initializeUpdateLog() {
     const version = updateLog.querySelector('[data-update-log-version]');
     const list = updateLog.querySelector('[data-update-log-items]');
 
-    const fallbackTitle = title ? title.textContent.trim() : '';
-    const fallbackVersion = version ? version.textContent.trim() : '';
-    const fallbackItems = list
+    const appliedTitle = title ? title.textContent.trim() : '';
+    const appliedVersion = version ? version.textContent.trim() : '';
+    const appliedItems = list
         ? Array.from(list.querySelectorAll('li')).map(item => item.textContent.trim()).filter(Boolean)
         : [];
-
-    const useConfig = UPDATE_LOG_CONFIG && UPDATE_LOG_CONFIG.enabled;
-    const hasFallbackTitle = Boolean(fallbackTitle);
-    const hasFallbackVersion = Boolean(fallbackVersion);
-    const hasFallbackItems = fallbackItems.length > 0;
-
-    // Prefer HTML content when it exists so manual edits show on the site.
-    const appliedTitle = hasFallbackTitle ? fallbackTitle : (useConfig ? UPDATE_LOG_CONFIG.title : '');
-    const appliedVersion = hasFallbackVersion ? fallbackVersion : (useConfig ? UPDATE_LOG_CONFIG.displayDate : '');
-    const appliedItems = hasFallbackItems
-        ? fallbackItems
-        : (useConfig && Array.isArray(UPDATE_LOG_CONFIG.items) ? UPDATE_LOG_CONFIG.items : []);
 
     const signature = getUpdateLogSignature([
         appliedTitle,
@@ -1187,14 +1122,7 @@ async function initializeUpdateLog() {
     const updateLogKey = updateLog.dataset.updateLogKey || 'update_log_seen';
     const stored = await getSetting(updateLogKey);
     const cookieSeen = getCookieValue(updateLogKey);
-    const shouldShow = UPDATE_LOG_CONFIG && UPDATE_LOG_CONFIG.enabled &&
-        stored !== signature && cookieSeen !== signature;
-
-    if (title && appliedTitle) title.textContent = appliedTitle;
-    if (version && appliedVersion) version.textContent = appliedVersion;
-    if (list) {
-        list.innerHTML = appliedItems.map(item => `<li>${item}</li>`).join('');
-    }
+    const shouldShow = stored !== signature && cookieSeen !== signature;
 
     updateLog.style.display = shouldShow ? 'flex' : 'none';
 }
